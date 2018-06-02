@@ -1,0 +1,454 @@
+%Author : Li-Wei Chen%
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Warsaw}
+\usefonttheme{serif}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage[backend=biber, style=ieee, citestyle=numeric]{biblatex}
+\usepackage{tikz}
+\usetikzlibrary{arrows, automata, positioning}
+\usepackage{multimedia}
+\usepackage{ragged2e}
+\usepackage{steinmetz}
+\usepackage{subcaption}
+\usetikzlibrary{arrows, positioning, shadows, calc}
+%\addbibresource{}
+\useoutertheme{miniframes}
+\usepackage{multirow}
+\graphicspath{ {/home/jeff/Latex/paper_presentation_2/imgs/} }
+\author[Li-Wei Chen]{Li-Wei Chen, Shan-Yuan Zheng, Guan-Yu Chen\\ \small{Supervised by C.M. Li}}
+\title[Final Project Team 2\hspace{2em}\insertframenumber/\inserttotalframenumber]{Watermarking-based Intellectual Property Core Protection Scheme}
+\setbeamertemplate{bibliography item}[text]
+%\setbeamercovered{transparent} 
+%\setbeamertemplate{navigation symbols}{} 
+%\logo{} 
+\institute{National Taiwan University} 
+\date{June 05, 2018} 
+%\subject{} 
+\definecolor{mygreen}{RGB}{40, 200, 100}
+\definecolor{mypurple}{RGB}{147, 112, 219}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+\DeclareMathOperator*{\argmin}{\arg\!\min}
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+\def\blockdist{3.5}
+
+\newcommand{\mysound}[2]{\sound[inlinesound, samplingrate=16000]{#1}{#2}}
+
+\tikzset{
+    >=stealth',
+    block1/.style={
+           rectangle,
+           rounded corners,
+           drop shadow,
+           draw=black, very thick,
+           fill=blue!20,
+           text width=6.5em,
+           minimum height=2.5em,
+           text centered},
+    block2/.style={
+           rectangle,
+           rounded corners,
+           drop shadow,
+           draw=black, very thick,
+           fill=blue!20,
+           text width=4em,
+           minimum height=4em,
+           text centered},
+    circle2/.style={
+           circle,
+           drop shadow,
+           draw=black, very thick,
+           fill=red!20,
+           text width=5em,
+           minimum height=5em,
+           text centered},
+    ra/.style={
+           rectangle,
+           drop shadow,
+           draw=black, very thick,
+           fill=green!10,
+           text width=6.5em,
+           minimum height=5em,
+           text centered},
+    pre/.style={
+           ->,
+           thick,
+           shorten <=1pt,
+           shorten >=1pt,},
+    post/.style={
+           <-,
+           thick,
+           shorten <=1pt,
+           shorten >=1pt,},
+    bidirect/.style={
+           <->,
+           thick,
+           shorten <=1pt,
+           shorten >=1pt,},
+    myliup/.style={
+           pos=0.5,
+           align=center,
+           font=\tiny,},
+    mylidn/.style={
+           pos=0.5,
+           below left,
+           align=center,
+           font=\tiny,},
+}
+
+
+\begin{document}
+\frame{\titlepage}
+\justifying
+
+\section{Project Description}
+\begin{frame}
+  \frametitle{Project Description}
+  \def\cscale{1.25}
+  \centering
+  \begin{tikzpicture}[node distance=2.3cm, auto, scale=\cscale]
+    \node[initial, state, accepting, scale=\cscale] (S_0) {$S_0$};
+    \node[state, scale=\cscale] (S_1) [right of=S_0] {$S_1$};
+    \node[state, scale=\cscale] (S_2) [right of=S_1] {$S_2$};
+    \node[state, scale=\cscale] (S_3) [below of=S_2] {$S_3$};
+    \node[state, scale=\cscale] (S_4) [left of=S_3] {$S_4$};
+    \node[state, scale=\cscale] (S_5) [left of=S_4] {$S_5$};
+    
+    \draw (S_0) edge[above, pre] node{00/0} (S_1);
+    \draw (S_0) edge[above, pre, bend left=35] node{01/0} (S_2);
+    \draw (S_0) edge[sloped, pos=0.4, pre] node{10/1} (S_3);
+    \draw (S_1) edge[above, pre] node{11/0} (S_2);
+    \draw (S_1) edge[sloped, above, pre] node{01/0} (S_5);    
+    \draw (S_2) edge[right, pre] node{00/0} (S_3);
+    \draw (S_2) edge[sloped, above, pos=0.3, pre] node{10/0} (S_4);
+    \draw (S_3) edge[above, pre] node{01/1} (S_4);
+    \draw (S_3) edge[below, pre, bend left=35] node{11/1} (S_5);
+    \draw (S_4) edge[above, pre] node{01/0} (S_5);
+    \draw (S_5) edge[left, pre] node{11/0} (S_0);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Project Description}
+  \def\cscale{1.25}
+  \centering
+  \begin{tikzpicture}[node distance=2.3cm, auto, scale=\cscale]
+    \node[initial, state, accepting, scale=\cscale] (S_0) {$S_0$};
+    \node[state, scale=\cscale] (S_1) [right of=S_0] {$S_1$};
+    \node[state, scale=\cscale] (S_2) [right of=S_1] {$S_2$};
+    \node[state, scale=\cscale] (S_3) [below of=S_2] {$S_3$};
+    \node[state, scale=\cscale] (S_4) [left of=S_3] {$S_4$};
+    \node[state, scale=\cscale] (S_5) [left of=S_4] {$S_5$};
+    
+    \draw (S_0) edge[above, pre] node{00/0} (S_1);
+    \draw (S_0) edge[above, pre, bend left=35] node{01/0} (S_2);
+    \draw (S_0) edge[sloped, pos=0.4, pre] node{10/1} (S_3);
+    \draw (S_1.10) edge[above, pre] node{11/0} (S_2.170);
+    \draw (S_1.350) edge[below, pre, red, dashed] node{00/1} (S_2.190);
+    \draw (S_1) edge[sloped, above, pre] node{01/0} (S_5);    
+    \draw (S_2) edge[right, pre] node{00/0} (S_3);
+    \draw (S_2) edge[sloped, above, pos=0.33, pre] node{10/0} (S_4);
+    \draw (S_3) edge[above, pre] node{01/1} (S_4);
+    \draw (S_3) edge[below, pre, bend left=35] node{11/1} (S_5);
+    \draw (S_3) edge[sloped, above, pre, red, dashed, pos=0.2] node{10/1} (S_1);
+    \draw (S_4) edge[above, pre] node{01/0} (S_5);
+    \draw (S_5) edge[left, pre] node{11/0} (S_0);
+  \end{tikzpicture}
+\end{frame}
+
+\section{Algorithm}
+
+\begin{frame}
+\frametitle{Algorithm}
+Given the input/output bit string $b_1b_2\cdots b_n$, where $b_i$ is the $i^{th}$ input/output pair and a the FSM $(\Sigma, S, s_0, \delta, F)$, we first compute the maximum length one may go from each $s \in S$ with the input and output relation specified by $b_ib_{i+1}\cdots b_n$. 
+
+The unspecified transition will not be taken into consideration, and the maximum length is recorded if there is no path to satisfy the input bit string. We also add a constraint, if the one candidate stops at $b_j$, the terminate state for the it must have a unspecified transition for $b_{j+1}$ to be the maximum length path, expect for when the last input is $b_n$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Algorithm}
+If their are multiple states that holds the same length, we choose the one that has the most free transitions. If they also have the same number, we randomly pick one to be the next state.
+
+Then we use a greedy strategy, starting from $b_0$, we first choose the maximum length state as the first state, then if the maximum path stops at $b_i$, we then choose the maximum length state for $b_{i + 2}$ as the second state. Using $b_j$ as the augmented trasition from the first state to the second state.
+\end{frame}
+
+\begin{frame}
+\frametitle{Algorithm}
+A new state is inserted if all the states has zero maximum length and the required input is already specified for all states. Suppose the next input/output pair is $b_i$, then we use $b_i$ as transition to the new state, and $b_{i + 1}$ as the new input/output pair(transition) and continue the algorithm.
+
+Once a new transition or state is add to the graph, they have no difference from the predefined ones. That is, the algorithm will also take them into consideration.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{CSFSM Detection}
+The detection of CSFSM is after the data is loaded and the graph is constructed, we run over each state the check if the out transitions span the whole possible inputs. If yes, the program will report that a CSFSM is detected.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Situation---New Transition}
+  \def\cscale{1.25}
+  \centering
+  \begin{tikzpicture}[node distance=2.3cm, auto, scale=\cscale]
+    \node[initial, state, accepting, scale=\cscale, mygreen] (S_0) {1};
+    \node[state, scale=\cscale] (S_1) [right of=S_0] {0};
+    \node[state, scale=\cscale] (S_2) [right of=S_1] {1};
+    \node[state, scale=\cscale] (S_3) [below of=S_2] {0};
+    \node[state, scale=\cscale] (S_4) [left of=S_3] {0};
+    \node[state, scale=\cscale] (S_5) [left of=S_4] {0};
+    \node at ($ (S_3.east) + (1, -1) $) {start at $b_0$ choose $S_0$};
+    \node at ($ (S_0.west) + (-1, 1) $) {000/001/000/101/001};
+    
+    \draw (S_0) edge[above, pre] node{00/0} (S_1);
+    \draw (S_0) edge[above, pre, bend left=35] node{01/0} (S_2);
+    \draw (S_0) edge[sloped, pos=0.4, pre] node{10/1} (S_3);
+    \draw (S_1.10) edge[above, pre] node{11/0} (S_2.170);
+%    \draw (S_1.350) edge[below, pre, red, dashed] node{00/1} (S_2.190);
+    \draw (S_1) edge[sloped, above, pre] node{01/0} (S_5);    
+    \draw (S_2) edge[right, pre] node{00/0} (S_3);
+    \draw (S_2) edge[sloped, above, pos=0.33, pre] node{10/0} (S_4);
+    \draw (S_3) edge[above, pre] node{01/1} (S_4);
+    \draw (S_3) edge[below, pre, bend left=35] node{11/1} (S_5);
+%    \draw (S_3) edge[sloped, above, pre, red, dashed, pos=0.2] node{10/1} (S_1);
+    \draw (S_4) edge[above, pre] node{01/0} (S_5);
+    \draw (S_5) edge[left, pre] node{11/0} (S_0);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Situation---New Transition}
+  \def\cscale{1.25}
+  \centering
+  \begin{tikzpicture}[node distance=2.3cm, auto, scale=\cscale]
+    \node[initial, state, accepting, scale=\cscale] (S_0) {1};
+    \node[state, scale=\cscale, cyan] (S_1) [right of=S_0] {0};
+    \node[state, scale=\cscale, mygreen] (S_2) [right of=S_1] {1};
+    \node[state, scale=\cscale] (S_3) [below of=S_2] {0};
+    \node[state, scale=\cscale] (S_4) [left of=S_3] {0};
+    \node[state, scale=\cscale] (S_5) [left of=S_4] {0};
+    \node at ($ (S_3.east) + (1, -1) $) {start at $b_2$ choose $S_2$};
+    \node at ($ (S_0.west) + (-1, 1) $) {\alert{001}/000/101/001};
+    
+    \draw (S_0) edge[above, pre] node{00/0} (S_1);
+    \draw (S_0) edge[above, pre, bend left=35] node{01/0} (S_2);
+    \draw (S_0) edge[sloped, pos=0.4, pre] node{10/1} (S_3);
+    \draw (S_1.10) edge[above, pre] node{11/0} (S_2.170);
+    \draw (S_1.350) edge[below, pre, red, dashed] node{00/1} (S_2.190);
+    \draw (S_1) edge[sloped, above, pre] node{01/0} (S_5);    
+    \draw (S_2) edge[right, pre] node{00/0} (S_3);
+    \draw (S_2) edge[sloped, above, pos=0.33, pre] node{10/0} (S_4);
+    \draw (S_3) edge[above, pre] node{01/1} (S_4);
+    \draw (S_3) edge[below, pre, bend left=35] node{11/1} (S_5);
+%    \draw (S_3) edge[sloped, above, pre, red, dashed, pos=0.2] node{10/1} (S_1);
+    \draw (S_4) edge[above, pre] node{01/0} (S_5);
+    \draw (S_5) edge[left, pre] node{11/0} (S_0);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Situation---New Transition}
+  \def\cscale{1.25}
+  \centering
+  \begin{tikzpicture}[node distance=2.3cm, auto, scale=\cscale]
+    \node[initial, state, accepting, scale=\cscale] (S_0) {0};
+    \node[state, scale=\cscale, mygreen] (S_1) [right of=S_0] {1};
+    \node[state, scale=\cscale] (S_2) [right of=S_1] {0};
+    \node[state, scale=\cscale, cyan] (S_3) [below of=S_2] {0};
+    \node[state, scale=\cscale] (S_4) [left of=S_3] {0};
+    \node[state, scale=\cscale] (S_5) [left of=S_4] {0};
+    \node at ($ (S_3.east) + (1, -1) $) {start at $b_4$ choose $S_1$};
+    \node at ($ (S_0.west) + (-1, 1) $) {\alert{101}/001};
+    
+    \draw (S_0) edge[above, pre] node{00/0} (S_1);
+    \draw (S_0) edge[above, pre, bend left=35] node{01/0} (S_2);
+    \draw (S_0) edge[sloped, pos=0.4, pre] node{10/1} (S_3);
+    \draw (S_1.10) edge[above, pre] node{11/0} (S_2.170);
+    \draw (S_1.350) edge[below, pre, red, dashed] node{00/1} (S_2.190);
+    \draw (S_1) edge[sloped, above, pre] node{01/0} (S_5);    
+    \draw (S_2) edge[right, pre] node{00/0} (S_3);
+    \draw (S_2) edge[sloped, above, pos=0.33, pre] node{10/0} (S_4);
+    \draw (S_3) edge[above, pre] node{01/1} (S_4);
+    \draw (S_3) edge[below, pre, bend left=35] node{11/1} (S_5);
+    \draw (S_3) edge[sloped, above, pre, red, dashed, pos=0.2] node{10/1} (S_1);
+    \draw (S_4) edge[above, pre] node{01/0} (S_5);
+    \draw (S_5) edge[left, pre] node{11/0} (S_0);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Situation---New Transition}
+  \def\cscale{1.25}
+  \centering
+  \begin{tikzpicture}[node distance=2.3cm, auto, scale=\cscale]
+    \node[initial, state, accepting, scale=\cscale] (S_0) {$S_0$};
+    \node[state, scale=\cscale] (S_1) [right of=S_0] {$S_1$};
+    \node[state, scale=\cscale] (S_2) [right of=S_1] {$S_2$};
+    \node[state, scale=\cscale] (S_3) [below of=S_2] {$S_3$};
+    \node[state, scale=\cscale] (S_4) [left of=S_3] {$S_4$};
+    \node[state, scale=\cscale] (S_5) [left of=S_4] {$S_5$};
+    \node at ($ (S_3.east) + (1, -1) $) {Cost $=2$};
+    \node at ($ (S_0.west) + (-1, 1) $) {Finished};
+    
+    \draw (S_0) edge[above, pre] node{00/0} (S_1);
+    \draw (S_0) edge[above, pre, bend left=35] node{01/0} (S_2);
+    \draw (S_0) edge[sloped, pos=0.4, pre] node{10/1} (S_3);
+    \draw (S_1.10) edge[above, pre] node{11/0} (S_2.170);
+    \draw (S_1.350) edge[below, pre, red, dashed] node{00/1} (S_2.190);
+    \draw (S_1) edge[sloped, above, pre] node{01/0} (S_5);    
+    \draw (S_2) edge[right, pre] node{00/0} (S_3);
+    \draw (S_2) edge[sloped, above, pos=0.33, pre] node{10/0} (S_4);
+    \draw (S_3) edge[above, pre] node{01/1} (S_4);
+    \draw (S_3) edge[below, pre, bend left=35] node{11/1} (S_5);
+    \draw (S_3) edge[sloped, above, pre, red, dashed, pos=0.2] node{10/1} (S_1);
+    \draw (S_4) edge[above, pre] node{01/0} (S_5);
+    \draw (S_5) edge[left, pre] node{11/0} (S_0);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Situation---New State}
+  \def\cscale{1.25}
+  \centering
+  \begin{tikzpicture}[node distance=2.3cm, auto, scale=\cscale]
+    \node[initial, state, accepting, scale=\cscale, mygreen] (S_0) {3};
+    \node[state, scale=\cscale] (S_1) [right of=S_0] {0};
+    \node[state, scale=\cscale] (S_2) [right of=S_1] {0};
+    \node[state, scale=\cscale] (S_3) [below of=S_2] {0};
+    \node[state, scale=\cscale] (S_4) [left of=S_3] {0};
+    \node[state, scale=\cscale] (S_5) [left of=S_4] {0};
+%    \node[state, scale=\cscale, mygreen] (S_6) [right of=S_3] {$S_6$};
+    \node at ($ (S_3.east) + (1, -1) $) {start at $b_0$ choose $S_0$};
+    \node at ($ (S_0.west) + (-1, 1) $) {000/110/010/101/011/100};
+    
+    \draw (S_0) edge[above, pre] node{00/0} (S_1);
+    \draw (S_0) edge[above, pre, bend left=35] node{01/0} (S_2);
+    \draw (S_0) edge[sloped, pos=0.4, pre] node{10/1} (S_3);
+    \draw (S_1) edge[above, pre] node{11/0} (S_2);
+    \draw (S_1) edge[sloped, above, pre] node{01/0} (S_5);    
+    \draw (S_2) edge[right, pre] node{01/0} (S_3);
+    \draw (S_2) edge[sloped, above, pos=0.33, pre] node{10/0} (S_4);
+    \draw (S_3) edge[above, pre] node{01/0} (S_4);
+    \draw (S_3) edge[below, pre, bend left=35] node{11/1} (S_5);
+%    \draw (S_3) edge[above, pre, red, dashed] node{10/1} (S_6);
+    \draw (S_4) edge[above, pre] node{01/0} (S_5);
+    \draw (S_5) edge[left, pre] node{01/0} (S_0);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Situation---New State}
+  \def\cscale{1.25}
+  \centering
+  \begin{tikzpicture}[node distance=2.3cm, auto, scale=\cscale]
+    \node[initial, state, accepting, scale=\cscale] (S_0) {0};
+    \node[state, scale=\cscale] (S_1) [right of=S_0] {0};
+    \node[state, scale=\cscale] (S_2) [right of=S_1] {0};
+    \node[state, scale=\cscale, cyan] (S_3) [below of=S_2] {0};
+    \node[state, scale=\cscale] (S_4) [left of=S_3] {0};
+    \node[state, scale=\cscale] (S_5) [left of=S_4] {0};
+    \node[state, scale=\cscale, red] (S_6) [right of=S_3] {$S_6$};
+    \node at ($ (S_3.east) + (1, -1) $) {start at $b_4$ dead end};
+    \node at ($ (S_0.west) + (-1, 1) $) {\alert{101}/011/100};
+    
+    \draw (S_0) edge[above, pre] node{00/0} (S_1);
+    \draw (S_0) edge[above, pre, bend left=35] node{01/0} (S_2);
+    \draw (S_0) edge[sloped, pos=0.4, pre] node{10/1} (S_3);
+    \draw (S_1) edge[above, pre] node{11/0} (S_2);
+    \draw (S_1) edge[sloped, above, pre] node{01/0} (S_5);    
+    \draw (S_2) edge[right, pre] node{01/0} (S_3);
+    \draw (S_2) edge[sloped, above, pos=0.33, pre] node{10/0} (S_4);
+    \draw (S_3) edge[above, pre] node{01/0} (S_4);
+    \draw (S_3) edge[below, pre, bend left=35] node{11/1} (S_5);
+    \draw (S_3) edge[above, pre, red, dashed] node{10/1} (S_6);
+    \draw (S_4) edge[above, pre] node{01/0} (S_5);
+    \draw (S_5) edge[left, pre] node{01/0} (S_0);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Situation---New State}
+  \def\cscale{1.25}
+  \centering
+  \begin{tikzpicture}[node distance=2.3cm, auto, scale=\cscale]
+    \node[initial, state, accepting, scale=\cscale] (S_0) {0};
+    \node[state, scale=\cscale] (S_1) [right of=S_0] {0};
+    \node[state, scale=\cscale, mygreen] (S_2) [right of=S_1] {1};
+    \node[state, scale=\cscale] (S_3) [below of=S_2] {0};
+    \node[state, scale=\cscale] (S_4) [left of=S_3] {0};
+    \node[state, scale=\cscale] (S_5) [left of=S_4] {0};
+    \node[state, scale=\cscale, cyan] (S_6) [right of=S_3] {$S_6$};
+    \node at ($ (S_3.east) + (1, -1) $) {start at $b_6$ choose $S_2$};
+    \node at ($ (S_0.west) + (-1, 1) $) {\alert{011}/100};
+    
+    \draw (S_0) edge[above, pre] node{00/0} (S_1);
+    \draw (S_0) edge[above, pre, bend left=35] node{01/0} (S_2);
+    \draw (S_0) edge[sloped, pos=0.4, pre] node{10/1} (S_3);
+    \draw (S_1) edge[above, pre] node{11/0} (S_2);
+    \draw (S_1) edge[sloped, above, pre] node{01/0} (S_5);    
+    \draw (S_2) edge[right, pre] node{01/0} (S_3);
+    \draw (S_2) edge[sloped, above, pos=0.33, pre] node{10/0} (S_4);
+    \draw (S_3) edge[above, pre] node{01/0} (S_4);
+    \draw (S_3) edge[below, pre, bend left=35] node{11/1} (S_5);
+    \draw (S_3) edge[above, pre, red, dashed] node{10/1} (S_6);
+    \draw (S_4) edge[above, pre] node{01/0} (S_5);
+    \draw (S_5) edge[left, pre] node{01/0} (S_0);
+    \draw (S_6) edge[sloped, above, pre, red, dashed] node{01/1} (S_2);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Situation---New State}
+  \def\cscale{1.25}
+  \centering
+  \begin{tikzpicture}[node distance=2.3cm, auto, scale=\cscale]
+    \node[initial, state, accepting, scale=\cscale] (S_0) {$S_0$};
+    \node[state, scale=\cscale] (S_1) [right of=S_0] {$S_1$};
+    \node[state, scale=\cscale] (S_2) [right of=S_1] {$S_2$};
+    \node[state, scale=\cscale] (S_3) [below of=S_2] {$S_3$};
+    \node[state, scale=\cscale] (S_4) [left of=S_3] {$S_4$};
+    \node[state, scale=\cscale] (S_5) [left of=S_4] {$S_5$};
+    \node[state, scale=\cscale, red] (S_6) [right of=S_3] {$S_6$};
+    \node at ($ (S_3.east) + (1, -1) $) {Cost $=3$};
+    \node at ($ (S_0.west) + (-1, 1) $) {Finished};
+    
+    \draw (S_0) edge[above, pre] node{00/0} (S_1);
+    \draw (S_0) edge[above, pre, bend left=35] node{01/0} (S_2);
+    \draw (S_0) edge[sloped, pos=0.4, pre] node{10/1} (S_3);
+    \draw (S_1) edge[above, pre] node{11/0} (S_2);
+    \draw (S_1) edge[sloped, above, pre] node{01/0} (S_5);    
+    \draw (S_2) edge[right, pre] node{01/0} (S_3);
+    \draw (S_2) edge[sloped, above, pos=0.33, pre] node{10/0} (S_4);
+    \draw (S_3) edge[above, pre] node{01/0} (S_4);
+    \draw (S_3) edge[below, pre, bend left=35] node{11/1} (S_5);
+    \draw (S_3) edge[above, pre, red, dashed] node{10/1} (S_6);
+    \draw (S_4) edge[above, pre] node{01/0} (S_5);
+    \draw (S_5) edge[left, pre] node{01/0} (S_0);
+    \draw (S_6) edge[sloped, above, pre, red, dashed] node{01/1} (S_2);
+  \end{tikzpicture}
+\end{frame}
+
+\section{Progress}
+
+\begin{frame}
+\frametitle{Progress}
+
+\end{frame}
+
+\section{Difficulties}
+
+\begin{frame}
+\frametitle{Difficulties}
+
+\end{frame}
+
+\end{document}
