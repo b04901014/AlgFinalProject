@@ -1,5 +1,5 @@
 [0] Config.pm:340> INFO - This is Biber 2.4
 [0] Config.pm:343> INFO - Logfile is 'alg_final.blg'
-[36] biber:287> INFO - === 六  六   2, 2018, 19:19:55
-[129] Biber.pm:348> INFO - Reading 'alg_final.bcf'
-[268] Utils.pm:147> WARN - No data sources defined!
+[37] biber:287> INFO - === 日  六   3, 2018, 16:50:51
+[131] Biber.pm:348> INFO - Reading 'alg_final.bcf'
+[272] Utils.pm:147> WARN - No data sources defined!

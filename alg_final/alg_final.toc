@@ -6,6 +6,4 @@
 \defcounter {refsection}{0}\relax 
 \beamer@sectionintoc {2}{Algorithm}{4}{0}{2}
 \defcounter {refsection}{0}\relax 
-\beamer@sectionintoc {3}{Progress}{16}{0}{3}
-\defcounter {refsection}{0}\relax 
-\beamer@sectionintoc {4}{Difficulties}{17}{0}{4}
+\beamer@sectionintoc {3}{Progress}{19}{0}{3}

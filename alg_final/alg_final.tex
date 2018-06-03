@@ -16,6 +16,9 @@
 \usepackage{ragged2e}
 \usepackage{steinmetz}
 \usepackage{subcaption}
+\usepackage[ruled]{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algorithmicx}
 \usetikzlibrary{arrows, positioning, shadows, calc}
 %\addbibresource{}
 \useoutertheme{miniframes}
@@ -177,7 +180,7 @@ The unspecified transition will not be taken into consideration, and the maximum
 
 \begin{frame}
 \frametitle{Algorithm}
-If their are multiple states that holds the same length, we choose the one that has the most free transitions. If they also have the same number, we randomly pick one to be the next state.
+If their are multiple states that holds the same length, we choose one randomly.
 
 Then we use a greedy strategy, starting from $b_0$, we first choose the maximum length state as the first state, then if the maximum path stops at $b_i$, we then choose the maximum length state for $b_{i + 2}$ as the second state. Using $b_j$ as the augmented trasition from the first state to the second state.
 \end{frame}
@@ -187,7 +190,13 @@ Then we use a greedy strategy, starting from $b_0$, we first choose the maximum 
 A new state is inserted if all the states has zero maximum length and the required input is already specified for all states. Suppose the next input/output pair is $b_i$, then we use $b_i$ as transition to the new state, and $b_{i + 1}$ as the new input/output pair(transition) and continue the algorithm.
 
 Once a new transition or state is add to the graph, they have no difference from the predefined ones. That is, the algorithm will also take them into consideration.
+\end{frame}
 
+\begin{frame}
+\frametitle{Algorithm}
+If the algorithm leads to a dead end, which is, all transitions of the give input $b^i_j$ is occupied, we push a new state into the graph and restart the algorithm.
+
+Although this will slow our algorithm a lot for the worst case, the contest input is constraint to be 128 bits, thus it has no influence to the time complexity.
 \end{frame}
 
 \begin{frame}
@@ -437,17 +446,114 @@ The detection of CSFSM is after the data is loaded and the graph is constructed,
   \end{tikzpicture}
 \end{frame}
 
+\begin{frame}
+\frametitle{Pseudocode}
+\centering
+\scalebox{0.7}{
+\begin{minipage}{0.7\linewidth}
+\begin{algorithm}[H]
+\caption{Watermark Part 1}
+\begin{algorithmic}[1]
+\State $G$: Input FSM, $(\Sigma, S, s_0, \delta, F)$
+\State $b^i$: Input bit string
+\State $b^o$: Output bit string
+\State $j = 0$, $maxlen = 0$, $start = null$, $dest = null$
+\While{$j \neq b^i.length - 1 $}  
+\For{\texttt{each s in G.S}}
+  \State $m, d, j =$ FindMaxLength($s$, $b^i$, $b^o$, $j$)
+  \If {$m \geq maxlen$ and $d \neq null$}
+    \State $maxlen = m$
+    \State $dest = d$
+  \EndIf
+\EndFor
+\algstore{myalg}
+\end{algorithmic}
+\end{algorithm}
+\end{minipage}
+\begin{minipage}{0.7\linewidth}
+\begin{algorithm}[H]
+\caption{Watermark Part 2}
+\begin{algorithmic}[1]
+\algrestore{myalg}
+\If {$dest \neq null$}
+  \State AddTransition($start$, $dest$, $b^i_j$, $b^o_j$)
+\Else
+  $dest =$ SearchFreeTransition($G$, $b^i_j$)
+  \If{$dest \neq null$}
+    \State AddNewState($dest$, $b^i_j$, $G$)
+  \Else
+    \State RandomAddState($G$)
+    \State \texttt{break}
+  \EndIf
+\EndIf
+\State $j = j + 1$
+\EndWhile
+\If {$j \neq b^i.length - 1$}
+  \State Watermark($G$, $b^i$, $b^o$)
+\EndIf
+\State \textbf{return} $G$
+\end{algorithmic}
+\end{algorithm}
+\end{minipage}
+}
+\end{frame}
+
+\begin{frame}
+\frametitle{Pseudocode}
+\centering
+\scalebox{0.7}{
+\begin{minipage}[H]{7cm}
+\vspace{0pt} 
+\begin{algorithm}[H]
+\caption{SearchFreeTransition}
+\begin{algorithmic}[1]
+\State $G$: Input FSM
+\State $b^i_j$: Input bit string
+\State $dest = null$
+\For{\texttt{each s in G.S}}
+  \If{$b^i_j \not\in s.outedges$}
+    \State $dest = s$
+    \State \texttt{break}
+  \EndIf
+\EndFor
+\State \textbf{return} $dest$
+\end{algorithmic}
+\end{algorithm}
+\end{minipage}
+\begin{minipage}[H]{0.7\linewidth}
+\begin{algorithm}[H]
+\caption{FindMaxLength}
+\begin{algorithmic}[1]
+\State $s$: Input start state
+\State $b^i$: Input bit string
+\State $b^o$: Output bit string
+\State $j$: Current position of the bit string
+\State $tmp = j, d = null$
+\While{$s.next(b^i_j) \neq null$ and $j \neq b^i.length - 1$}
+  \State $s', o = s.next(b^i_j)$
+  \If {$o = b^o_j$}
+    \State $s = s'$
+    \State $d = s'$
+    \State $j = j + 1$  
+  \EndIf
+\EndWhile
+\If {$b^i_{j + 1} \not\in s'.freetransitions$}
+  \State \textbf{return} $0$, $null$, $tmp$
+\EndIf
+\State \textbf{return} $j - tmp$, $d$, $tmp$
+\end{algorithmic}
+\end{algorithm}
+\end{minipage}
+}
+\end{frame}
+
 \section{Progress}
 
 \begin{frame}
-\frametitle{Progress}
+\frametitle{Progress and Difficulties}
+We are still building the parser, dealing with the kiss format and loading into the C++ class to construct the graph. Some teamates start to implement the algorithm. The difficuties are that it's hard to work parallelly, one working on the algorithm needs to tell what data structure hw needs to the one works with the parser, and the situation changes dynamically.
 
-\end{frame}
-
-\section{Difficulties}
-
-\begin{frame}
-\frametitle{Difficulties}
+We think we need a universal coding structure first, we should define all the functions and data structures we need to implement the algorithm, including the return and input types. Then, filling up the whole will be much more efficient for multiple workers.
 
 \end{frame}
 
