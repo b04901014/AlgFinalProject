@@ -478,7 +478,7 @@ The detection of CSFSM is after the data is loaded and the graph is constructed,
 \If {$dest \neq null$}
   \State AddTransition($start$, $dest$, $b^i_j$, $b^o_j$)
 \Else
-  $dest =$ SearchFreeTransition($G$, $b^i_j$)
+  \State $dest =$ SearchFreeTransition($G$, $b^i_j$)
   \If{$dest \neq null$}
     \State AddNewState($dest$, $b^i_j$, $G$)
   \Else
