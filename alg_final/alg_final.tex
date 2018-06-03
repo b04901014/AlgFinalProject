@@ -489,7 +489,7 @@ The detection of CSFSM is after the data is loaded and the graph is constructed,
 \State $j = j + 1$
 \EndWhile
 \If {$j \neq b^i.length - 1$}
-  \State Watermark($G$, $b^i$, $b^o$)
+  \State $G =$ Watermark($G$, $b^i$, $b^o$)
 \EndIf
 \State \textbf{return} $G$
 \end{algorithmic}
