@@ -18,19 +18,18 @@ BitString::~BitString()
 }
 
 void
-BitString::set(string& str)
+BitString::set(string str)
 {
   size_t l = str.length();
-  const size_t sizeun = sizeof(unsigned char) * 8;
+  const size_t sizeun = sizeof(long long) * 8;
   size_t r = l % sizeun;
   if (r) 
     r = sizeun - r;
-//  cout << l << ' ' << sizeun << ' ' << r << endl;
   for (int i=0; i<r; i++)
     str += "0";
   l = str.length();
   _q = l / sizeun;
-  _bytes = new unsigned char[_q];
+  _bytes = new long long[_q];
   for (int i=0; i<_q; i++)
     _bytes[i] &= ~_bytes[i];
   size_t j = 0;
@@ -47,7 +46,7 @@ void
 BitString::print()
 {
   for (int i=0; i<_q; i++)
-    printf ("%u\n", _bytes[i]);
+    cout << _bytes[i] << endl;
 }
 
 State::State()
@@ -75,7 +74,30 @@ State::addtrans(string& in, string& out, State* s)
     return false;
   _c++;
   _t[_c]._s = s;
-  _t[_c]._i = BitString(in);
+  _t[_c]._ni = 1;
+  size_t tmp[128];
+  size_t count = 0;
+  for (int i=0; i<in.length(); i++)
+    if (in[i] == '-') {
+      _t[_c]._ni *= 2;
+      tmp[i] = i;
+      count++;
+    }
+  _t[_c]._i = new BitString[_t[_c]._ni];
+  string* bc;
+  bitcomb(count, bc);
+  for (int i=0; i<count; i++) {
+    string tmpstr = in;
+    for (int j=0; j<bc[i].length(); j++)
+      tmpstr[tmp[j]] = bc[i][j];
+    _t[_c]._i[j] = BitString(in);
+  }
   _t[_c]._o = BitString(out);
   return true;
+}
+
+void
+State::bitcomb(int n, string* str)
+{
+  
 }

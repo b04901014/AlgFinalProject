@@ -15,11 +15,11 @@ public:
   BitString(string&);
   ~BitString();
 
-  void set(string&);
+  void set(string);
   void print();
 
 private:
-  unsigned char* _bytes;
+  long long*     _bytes;
   size_t         _q; //size of bytes
 };
 
@@ -34,6 +34,8 @@ public:
   bool addtrans(string&, string&, State*); //return false if transition is full
 
 private:
+  void bitcomb(int, string&);
+
   Transition*    _t;
   size_t         _ni;  //max input transitions
   size_t         _c;   //current occupied states
@@ -42,9 +44,10 @@ private:
 
 struct Transition
 {
-  State*         _s; //next state
-  BitString      _i; //input weight
-  BitString      _o; //output weight
+  State*         _s;   //next state
+  BitString*     _i;   //input weights
+  BitString      _o;   //output weight
+  size_t         _nw;  //number of input weights
 };
 
 #endif

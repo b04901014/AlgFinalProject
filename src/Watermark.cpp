@@ -12,8 +12,8 @@ Watermark::Watermark(char* fn)
     cerr << "Failed to open file!" << endl;
     exit(0);
   }
-  getline(f, line);
-  getline(f, line);
+  while (line[0] != '.')
+    getline(f, line);
   size_t pos = line.find(' ') + 1;
   _n_ib =  atoi(line.substr(pos, line.size() - pos + 1).c_str());
   getline(f, line);
