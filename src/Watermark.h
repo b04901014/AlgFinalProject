@@ -17,10 +17,13 @@ public:
   void write(char*);
 
 private:
-  void split(string&, int&, int&, int&, int&);
+  void split(string&, string&, size_t&, size_t&, string&);
 
-  BitString* inputs;
-
+  State*      _states;
+  size_t      _n_states;
+  size_t      _n_ib;
+  size_t      _n_ob;
+  size_t      _res;
 };
 
 #endif

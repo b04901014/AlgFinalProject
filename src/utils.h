@@ -1,9 +1,12 @@
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
 #ifndef UTILS
 #define UTILS
+
+struct Transition;
 
 class BitString
 {
@@ -13,6 +16,7 @@ public:
   ~BitString();
 
   void set(string&);
+  void print();
 
 private:
   unsigned char* _bytes;
@@ -23,15 +27,24 @@ class State
 {
 public:
   State();
-  State(size_t&, size_t&, size_t&);
+  State(size_t);
   ~State();
 
-  void set(size_t&, size_t&, size_t&);
+  void set(size_t);
+  bool addtrans(string&, string&, State*); //return false if transition is full
 
 private:
-  State*         _s; //next state
-  BitString*     _i; //input transition
-  BitString*     _o; //output transition
+  Transition*    _t;
+  size_t         _ni;  //max input transitions
+  size_t         _c;   //current occupied states
 
 };
+
+struct Transition
+{
+  State*         _s; //next state
+  BitString      _i; //input weight
+  BitString      _o; //output weight
+};
+
 #endif

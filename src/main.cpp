@@ -9,7 +9,7 @@ void help_message() {
 
 int main(int argc, char* argv[])
 {
-  if (argc != 3) {
+  if (argc != 2) {
     help_message();
     return 0;
   }   
