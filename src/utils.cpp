@@ -45,6 +45,12 @@ BitString::operator ++ ()
   return *this;
 }
 
+bool
+BitString::operator == (const BitString& y)
+{
+  return bool(_bytes == y._bytes);
+}
+
 void
 BitString::set(string& str)
 {
@@ -137,12 +143,21 @@ State::addtrans(string& in, string& out, State* s)
     for (int j=0; j<bc[i].length(); j++)
       tmpstr[tmp[j]] = bc[i][j];
     assert (_c < _ni);
-    _t[_c]._s = 0;
-    _t[_c]._i = new BitString(tmpstr);
-    _t[_c]._o = new BitString(out);
-    ++*(_t[_c]._i);
-    _t[_c]._i->print();
-    _c++;
+    BitString* tmpb = new BitString(tmpstr);
+    bool flag = true;
+    for (int j=0; j<_c; j++)
+      if (*(_t[j]._i) == *tmpb) {
+        flag = false;
+        break;
+      }
+    if (flag) {
+      _t[_c]._s = s;
+      _t[_c]._i = new BitString(tmpstr);
+      _t[_c]._o = new BitString(out);
+      _c++;
+    }
+//    ++*(_t[_c]._i);
+//    _t[_c]._i->print();
 /*    _t[_c]._i->print();
     string x = "111111";
     BitString tmp(x);

@@ -18,6 +18,7 @@ public:
 
   bool operator < (const BitString&);
   bool operator > (const BitString&);
+  bool operator == (const BitString&);
   BitString& operator ++ ();
   void set(string&);
   void print();
