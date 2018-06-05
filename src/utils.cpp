@@ -141,8 +141,6 @@ State::addtrans(string& in, string& out, State* s)
       _t[_c]._s = s;
       _t[_c]._i = new BitString(tmpstr);
       _t[_c]._o = new BitString(out);
-      _t[_c]._o->print();
-      cout << _t[_c]._o->tolong() << endl;
       _c++;
     }
   }
