@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <bitset>
 
 using namespace std;
 
@@ -15,12 +16,14 @@ public:
   BitString(string&);
   ~BitString();
 
-  void set(string);
+  bool operator < (const BitString&);
+  bool operator > (const BitString&);
+  BitString& operator ++ ();
+  void set(string&);
   void print();
 
 private:
-  long long*     _bytes;
-  size_t         _q; //size of bytes
+  bitset<128>    _bytes;
 };
 
 class State
@@ -34,7 +37,7 @@ public:
   bool addtrans(string&, string&, State*); //return false if transition is full
 
 private:
-  void bitcomb(int, string&);
+  void bitcomb(int, string*);
 
   Transition*    _t;
   size_t         _ni;  //max input transitions
@@ -46,8 +49,8 @@ struct Transition
 {
   State*         _s;   //next state
   BitString*     _i;   //input weights
-  BitString      _o;   //output weight
-  size_t         _nw;  //number of input weights
+  BitString*     _o;   //output weight
+//  size_t         _nw;  //number of input weights
 };
 
 #endif
