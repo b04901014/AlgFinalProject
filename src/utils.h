@@ -1,11 +1,16 @@
 #include <iostream>
 #include <cmath>
 #include <bitset>
+#include <stdio.h>
+#include <cassert>
+#include <stdlib.h>
 
 using namespace std;
 
 #ifndef UTILS
 #define UTILS
+
+#define BITSIZE 64
 
 struct Transition;
 
@@ -22,9 +27,10 @@ public:
   BitString& operator ++ ();
   void set(string&);
   void print();
+  unsigned long tolong();
 
 private:
-  bitset<128>    _bytes;
+  bitset<BITSIZE>    _bytes;
 };
 
 class State
@@ -41,8 +47,8 @@ private:
   void bitcomb(int, string*);
 
   Transition*    _t;
-  size_t         _ni;  //max input transitions
-  size_t         _c;   //current occupied states
+  unsigned long  _ni;  //max input transitions
+  unsigned long  _c;   //current occupied states
 
 };
 
@@ -51,7 +57,6 @@ struct Transition
   State*         _s;   //next state
   BitString*     _i;   //input weights
   BitString*     _o;   //output weight
-//  size_t         _nw;  //number of input weights
 };
 
 #endif

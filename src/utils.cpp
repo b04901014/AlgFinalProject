@@ -1,6 +1,4 @@
 #include "utils.h"
-#include <stdio.h>
-#include <cassert>
 
 BitString::BitString(string& str)
 {
@@ -20,7 +18,7 @@ BitString::~BitString()
 bool
 BitString::operator < (const BitString& y)
 {
-  for (int i=127; i>=0; i--)
+  for (int i=BITSIZE-1; i>=0; i--)
     if (_bytes[i] ^ y._bytes[i])
       return y._bytes[i];
   return false;
@@ -35,7 +33,7 @@ BitString::operator > (const BitString& y)
 BitString&
 BitString::operator ++ ()
 {
-  for (int i=0; i<128; i++) {
+  for (int i=0; i<BITSIZE; i++) {
     if (!_bytes[i]) {
       _bytes[i] = 1;
       break;
@@ -55,40 +53,25 @@ void
 BitString::set(string& str)
 {
   size_t l = str.length();
-  const size_t sizeun = 128;
+  const size_t sizeun = BITSIZE;
   size_t r = l % sizeun;
   if (r) 
     r = sizeun - r;
   for (int i=0; i<r; i++)
     str = "0" + str;
-  _bytes = bitset<128>(str);
-/*  size_t l = str.length();
-  const size_t sizeun = sizeof(long long) * 8;
-  size_t r = l % sizeun;
-  if (r) 
-    r = sizeun - r;
-  for (int i=0; i<r; i++)
-    str += "0";
-  l = str.length();
-  _q = l / sizeun;
-  _bytes = new long long[_q];
-  for (int i=0; i<_q; i++)
-    _bytes[i] &= ~_bytes[i];
-  size_t j = 0;
-  for (int i=0; i<l; i++) {
-    _bytes[j] <<= 1;
-    if (str[i] == '1') {
-      _bytes[j] |= 0x01;
-    }
-    if ((i + 1) % sizeun == 0)
-      j++;
-  }*/
+  _bytes = bitset<BITSIZE>(str);
 }
 
 void
 BitString::print()
 {
   cout << _bytes.to_string() << endl;
+}
+
+unsigned long
+BitString::tolong() 
+{
+  return _bytes.to_ulong();
 }
 
 State::State()
@@ -115,6 +98,10 @@ State::~State()
 void
 State::set(size_t ni)
 {
+  if (ni >= 64) {
+    cerr << "Number of transition is over 64 bits" << endl;
+    exit(0);
+  }
   _ni = pow(2, ni);
   _t = new Transition[_ni];
   _c = 0;
@@ -125,7 +112,7 @@ State::addtrans(string& in, string& out, State* s)
 {
   if (_c == _ni)
     return false;
-  size_t tmp[128];
+  size_t tmp[BITSIZE];
   size_t count = 0;
   size_t nw = 1;
   for (int i=0; i<in.length(); i++)
@@ -154,17 +141,10 @@ State::addtrans(string& in, string& out, State* s)
       _t[_c]._s = s;
       _t[_c]._i = new BitString(tmpstr);
       _t[_c]._o = new BitString(out);
+      _t[_c]._o->print();
+      cout << _t[_c]._o->tolong() << endl;
       _c++;
     }
-//    ++*(_t[_c]._i);
-//    _t[_c]._i->print();
-/*    _t[_c]._i->print();
-    string x = "111111";
-    BitString tmp(x);
-    cout << bool(*(_t[_c]._i) > tmp) << endl;
-    */
-//    _t[_c]._i++;
-//    _t[_c]._i->print();
   }
   return true;
 }
@@ -185,3 +165,4 @@ State::bitcomb(int n, string* str)
     }
   }
 }
+
