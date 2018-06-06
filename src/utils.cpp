@@ -5,6 +5,11 @@ BitString::BitString(string& str)
   set(str);
 }
 
+BitString::BitString(unsigned long x)
+{
+  _bytes = bitset<BITSIZE>(x);
+}
+
 BitString::BitString()
 {
 
@@ -68,6 +73,12 @@ BitString::print()
   cout << _bytes.to_string() << endl;
 }
 
+string
+BitString::tostring()
+{
+  return _bytes.to_string();
+}
+
 unsigned long
 BitString::tolong() 
 {
@@ -84,10 +95,8 @@ State::~State()
   if (_t) {
     for (int i=0; i<_c; i++) {
       delete _t[i]._s;
-      delete _t[i]._i;
       delete _t[i]._o;
       _t[i]._s = 0;
-      _t[i]._i = 0;
       _t[i]._o = 0;
     }
     delete[] _t;
@@ -96,14 +105,19 @@ State::~State()
 }
 
 void
-State::set(size_t ni)
+State::set(unsigned long ni, unsigned long idx)
 {
   if (ni >= 64) {
     cerr << "Number of transition is over 64 bits" << endl;
     exit(0);
   }
+  _index = idx;
   _ni = pow(2, ni);
   _t = new Transition[_ni];
+  for (int i=0; i<_ni; i++) {
+    _t[i]._s = 0;
+    _t[i]._o = 0;
+  }
   _c = 0;
 }
 
@@ -130,17 +144,11 @@ State::addtrans(string& in, string& out, State* s)
     for (int j=0; j<bc[i].length(); j++)
       tmpstr[tmp[j]] = bc[i][j];
     assert (_c < _ni);
-    BitString* tmpb = new BitString(tmpstr);
-    bool flag = true;
-    for (int j=0; j<_c; j++)
-      if (*(_t[j]._i) == *tmpb) {
-        flag = false;
-        break;
-      }
-    if (flag) {
-      _t[_c]._s = s;
-      _t[_c]._i = new BitString(tmpstr);
-      _t[_c]._o = new BitString(out);
+    BitString tmpb(tmpstr);
+    unsigned long idx = tmpb.tolong();
+    if (!IsTransitionOccupied(idx)) {
+      _t[idx]._s = s;
+      _t[idx]._o = new BitString(out);
       _c++;
     }
   }
@@ -164,3 +172,29 @@ State::bitcomb(int n, string* str)
   }
 }
 
+bool
+State::IsTransitionOccupied(unsigned long iw)
+{
+  return bool(_t[iw]._s);
+}
+
+void
+State::print(size_t trunc1, size_t trunc2)
+{
+  if (!_t)
+    return;
+  if (trunc1)
+    trunc1 = 8 * sizeof(unsigned long) - trunc1;
+  if (trunc2)
+    trunc1 = 8 * sizeof(unsigned long) - trunc2;
+  BitString* tmp;
+  for (size_t i=0; i<_ni; i++)
+    if (IsTransitionOccupied(i)) {
+      tmp = new BitString((unsigned long)i);
+      cout << 's' << _index << ' ';
+      cout << (tmp->tostring()).substr(trunc1) << ' ';
+      cout << (_t[i]._o->tostring()).substr(trunc2) << ' ';
+      cout << 's' << _t[i]._s->_index << endl;
+      delete tmp;
+    }
+}

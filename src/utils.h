@@ -19,6 +19,7 @@ class BitString
 public:
   BitString();
   BitString(string&);
+  BitString(unsigned long);
   ~BitString();
 
   bool operator < (const BitString&);
@@ -28,6 +29,7 @@ public:
   void set(string&);
   void print();
   unsigned long tolong();
+  string tostring();
 
 private:
   bitset<BITSIZE>    _bytes;
@@ -37,26 +39,33 @@ class State
 {
 public:
   State();
-  State(size_t);
+  State(unsigned long, unsigned long);
   ~State();
 
-  void set(size_t);
+  void set(unsigned long, unsigned long);
   bool addtrans(string&, string&, State*); //return false if transition is full
+  void traverse(BitString&);
+  void print(size_t = 0, size_t = 0);
 
 private:
   void bitcomb(int, string*);
+  bool IsTransitionOccupied(unsigned long);
 
   Transition*    _t;
-  unsigned long  _ni;  //max input transitions
-  unsigned long  _c;   //current occupied states
-
+  unsigned long  _ni;    //max input transitions
+  unsigned long  _c;     //current occupied states
+  unsigned long  _index; //state index
 };
 
 struct Transition
 {
   State*         _s;   //next state
-  BitString*     _i;   //input weights
   BitString*     _o;   //output weight
+  
+  unsigned long getoutputlong() {
+    return _o->tolong();
+  }
+
 };
 
 #endif

@@ -30,7 +30,7 @@ Watermark::Watermark(char* fn)
   _res =  atoi(line.substr(pos + 1, line.size() - pos + 1).c_str());
   _states = new State[_n_states];
   for (int i=0; i<_n_states; i++)
-    _states[i].set(_n_ib);
+    _states[i].set(_n_ib, i);
   for (int i=0; i<np; i++) {
     getline(f, line);
     size_t s1, s2;
@@ -38,6 +38,8 @@ Watermark::Watermark(char* fn)
     split(line, in, s1, s2, out);
     _states[s1].addtrans(in, out, &_states[s2]);
   }
+  for (int i=0; i<_n_states; i++)
+    _states[i].print(_n_ib, _n_ob);
 }
 
 void
