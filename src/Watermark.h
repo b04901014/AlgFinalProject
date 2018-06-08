@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include "utils.h"
+#include <set>
 
 using namespace std;
 
@@ -18,6 +19,7 @@ public:
 
 private:
   void split(string&, string&, size_t&, size_t&, string&);
+  void UnreachState(set<size_t>*);
 
   State*      _states;
   size_t      _n_states;

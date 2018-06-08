@@ -191,10 +191,10 @@ State::print(size_t trunc1, size_t trunc2)
   for (size_t i=0; i<_ni; i++)
     if (IsTransitionOccupied(i)) {
       tmp = new BitString((unsigned long)i);
-      cout << 's' << _index << ' ';
+      cout << 'S' << _index << ' ';
       cout << (tmp->tostring()).substr(trunc1) << ' ';
       cout << (_t[i]._o->tostring()).substr(trunc2) << ' ';
-      cout << 's' << _t[i]._s->_index << endl;
+      cout << 'S' << _t[i]._s->_index << endl;
       delete tmp;
     }
 }
