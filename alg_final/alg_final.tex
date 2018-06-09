@@ -529,12 +529,14 @@ The detection of CSFSM is after the data is loaded and the graph is constructed,
 \State $b^o$: Output bit string
 \State $j$: Current position of the bit string
 \State $tmp = j, d = null$
-\While{$s.next(b^i_j) \neq null$ and $j \neq b^i.length - 1$}
+\While{$s.next(b^i_j) \neq null$ and $j \neq b^i.length$}
   \State $s', o = s.next(b^i_j)$
   \If {$o = b^o_j$}
     \State $s = s'$
     \State $d = s'$
-    \State $j = j + 1$  
+    \State $j = j + 1$ 
+  \Else
+    \State \textbf{break}
   \EndIf
 \EndWhile
 \If {$b^i_{j + 1} \not\in s'.freetransitions$}

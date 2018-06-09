@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.12.25)  3 JUN 2018 16:59
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.12.25)  9 JUN 2018 16:25
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1735,7 +1735,11 @@ File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 
 ] [17
 
-] [18
+]
+Overfull \vbox (5.709pt too high) detected at line 550
+ []
+
+[18
 
 ] [19
 
@@ -1749,12 +1753,11 @@ File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 \tf@snm=\write9
 \openout9 = `alg_final.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 560.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 560.
-
-(./alg_final.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 560.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 560.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 562.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 562.
+ (./alg_final.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 562.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 562.
 Package rerunfilecheck Info: File `alg_final.out' has not changed.
 (rerunfilecheck)             Checksum: AC50AF4358C0030C59A5ACA1B36CF156;141.
 
@@ -1765,7 +1768,7 @@ LaTeX Font Warning: Size substitutions with differences
 Package logreq Info: Writing requests to 'alg_final.run.xml'.
 \openout1 = `alg_final.run.xml'.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 560.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 562.
  ) 
 Here is how much of TeX's memory you used:
  28768 strings out of 493029
@@ -1786,7 +1789,7 @@ ic/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
 nts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
 /cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10
 .pfb>
-Output written on alg_final.pdf (19 pages, 195784 bytes).
+Output written on alg_final.pdf (19 pages, 196453 bytes).
 PDF statistics:
  684 PDF objects out of 1000 (max. 8388607)
  613 compressed objects within 7 object streams
