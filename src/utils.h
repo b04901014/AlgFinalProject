@@ -44,8 +44,8 @@ public:
 
   void set(unsigned long, unsigned long);
   bool addtrans(string&, string&, State*); //return false if transition is full
-  void traverse(BitString&);
   void print(size_t = 0, size_t = 0);
+  State* MaxLengthRun(BitString*, BitString*, size_t, size_t&, size_t);
 
 private:
   void bitcomb(int, string*);

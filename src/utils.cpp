@@ -164,12 +164,11 @@ State::bitcomb(int n, string* str)
   for (int i=0; i<np; i++)
     str[i] = string(n, '0');
   str[1][0] = '1';
-  for (int i=1; i<n; i++) {
+  for (int i=1; i<n; i++)
     for (int j=pow(2, i); j<pow(2, i+1); j++) {
       str[j] = str[size_t(j - pow(2, i))];
       str[j][i] = '1';
     }
-  }
 }
 
 bool
@@ -197,4 +196,33 @@ State::print(size_t trunc1, size_t trunc2)
       cout << 'S' << _t[i]._s->_index << endl;
       delete tmp;
     }
+}
+
+State*
+State::MaxLengthRun(BitString* bin, BitString* bout, size_t j, size_t& maxlen, size_t n)
+{
+  maxlen = 0;
+  State* s = this;
+  unsigned long idx = bin[j].tolong();
+  if (!s->IsTransitionOccupied(idx))
+    return 0;
+  while (s->IsTransitionOccupied(idx)) {
+    State* ns = _t[idx]._s;
+    BitString* o = _t[idx]._o;
+    if (*o == bout[j]) {
+      s = ns;
+      maxlen++;
+      if (j + maxlen == n)
+        break;
+      idx = bin[j + maxlen].tolong();
+    }
+    else
+      break;
+  }
+  if (j + maxlen != n)
+    if (s->IsTransitionOccupied(bin[j + maxlen + 1].tolong())) {
+      maxlen = 0;
+      return 0;
+    }
+  return s;
 }
