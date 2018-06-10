@@ -90,6 +90,12 @@ State::State()
   _t = 0;
 }
 
+State::State(unsigned long ni, unsigned long idx)
+{
+  _t = 0;
+  set(ni, idx);
+}
+
 State::~State()
 {
   if (_t) {

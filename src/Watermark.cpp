@@ -2,7 +2,6 @@
 
 Watermark::~Watermark()
 {
-
 }
 Watermark::Watermark(char* fn)
 {
@@ -12,6 +11,8 @@ Watermark::Watermark(char* fn)
     cerr << "Failed to open file!" << endl;
     exit(0);
   }
+  _bin = 0;
+  _bout = 0;
   while (line[0] != '.')
     getline(f, line);
   size_t pos = line.find(' ') + 1;
@@ -24,31 +25,29 @@ Watermark::Watermark(char* fn)
   int np =  atoi(line.substr(pos, line.size() - pos + 1).c_str());
   getline(f, line);
   pos = line.find(' ') + 1;
-  _n_states =  atoi(line.substr(pos, line.size() - pos + 1).c_str());
+  size_t n_states =  atoi(line.substr(pos, line.size() - pos + 1).c_str());
   getline(f, line);
   pos = line.find(' ') + 1;
   _res =  atoi(line.substr(pos + 1, line.size() - pos + 1).c_str());
-  _states = new State[_n_states];
-  for (int i=0; i<_n_states; i++)
-    _states[i].set(_n_ib, i);
-  set<size_t>* tmpgraph = new set<size_t>[_n_states];
+  for (int i=0; i<n_states; i++) {
+    State* tmp = new State(_n_ib, i);
+    _states.push_back(tmp);
+  }
+  set<size_t>* graph = new set<size_t>[n_states];
   for (int i=0; i<np; i++) {
     getline(f, line);
     size_t s1, s2;
     string in, out;
     split(line, in, s1, s2, out);
-    _states[s1].addtrans(in, out, &_states[s2]);
-    tmpgraph[s1].insert(s2);
+    _states[s1]->addtrans(in, out, _states[s2]);
+    graph[s1].insert(s2);
   }
-//  for (int i=0; i<_n_states; i++)
-//    _states[i].print(_n_ib, _n_ob);
-  UnreachState(tmpgraph);
-  for (set<size_t>::iterator i=tmpgraph[_res].begin(); i!=tmpgraph[_res].end(); ++i) {
-    //run FindMaxLength
-  }
-  for (size_t i=0; i<_n_states; i++)
-    tmpgraph[i].clear();
-  delete[] tmpgraph;
+  UnreachState(graph);
+  for (size_t i=0; i<graph->size(); i++)
+    graph[i].clear();
+  delete[] graph;
+//  for (int i=0; i<_states.size(); i++)
+//    _states[i]->print(_n_ib, _n_ob);
 }
 
 void
@@ -86,10 +85,45 @@ Watermark::UnreachState(set<size_t>* a)
             control = true;
   } while (control);
 
-  if (a[_res].size() < _n_states) {
-    for (size_t i=0; i<_n_states; i++)
-      if (a[_res].find(i) == a[_res].end())
+  if (a[_res].size() < _states.size()) {
+    for (size_t i=0; i<_states.size(); i++)
+      if (a[_res].find(i) == a[_res].end()) {
         cout << 'S' << i << ' ';
+        DeleteState(i);
+      }
     cout << "is disconnected to the reset state" << endl;
   }
+}
+
+void
+Watermark::Parsemd5(char* md5fn)
+{
+  
+
+}
+
+void
+Watermark::Run(char* md5fn)
+{
+  Parsemd5(md5fn);
+  for (vector<State*>::iterator i=_states.begin(); i!=_states.end(); ++i) {
+    if (*i) {
+      //run FindMaxLength
+    }
+  }
+}
+
+void
+Watermark::NewState()
+{
+  size_t i = _states.size();
+  State* tmp = new State(_n_ib, i);
+  _states.push_back(tmp);
+}
+
+void
+Watermark::DeleteState(size_t i)
+{
+  delete _states[i];
+  _states[i] = 0;
 }
