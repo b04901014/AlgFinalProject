@@ -32,6 +32,7 @@ private:
   size_t            _res;
   BitString*        _bin;
   BitString*        _bout;
+  size_t            _lenb;
 };
 
 #endif

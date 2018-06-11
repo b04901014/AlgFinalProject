@@ -9,12 +9,13 @@ void help_message() {
 
 int main(int argc, char* argv[])
 {
-  if (argc != 2) {
+  if (argc != 3) {
     help_message();
     return 0;
   }   
   Watermark wk(argv[1]);
-  wk.write(argv[2]);
+  wk.Run(argv[2]);
+  wk.write(argv[3]);
   return 0;
 }
 

@@ -98,8 +98,37 @@ Watermark::UnreachState(set<size_t>* a)
 void
 Watermark::Parsemd5(char* md5fn)
 {
-  
-
+  ifstream f(md5fn, ifstream::in);  
+  string line, md5;
+  md5 = "";
+  if (!f.is_open()) {
+    cerr << "Failed to open file " << md5fn << '!' << endl;
+    exit(0);
+  }
+  getline(f, line);
+  for (int i=0; i<line.length(); i++) {
+    char c = line[i];
+    int x = c;
+    if (c >= 'a')
+      x = c - 'a' + 10;
+    bitset<4> tmp(x);
+    md5 += tmp.to_string();
+  }
+  size_t totalsize = _n_ib + _n_ob;
+  size_t r = md5.length() % totalsize;
+  if (r)
+    r = totalsize - r;
+  for (int i=0; i<r; i++)
+    md5 += '0';
+  _lenb = md5.length() / totalsize;
+  _bin = new BitString[_lenb];
+  _bout = new BitString[_lenb];
+  for (int i=0; i<_lenb; i++) {
+    string tmp = md5.substr(i * totalsize, _n_ib);
+    _bin[i].set(tmp);
+    tmp = md5.substr(i * totalsize + _n_ib, _n_ob);
+    _bout[i].set(tmp);
+  }
 }
 
 void
@@ -111,6 +140,9 @@ Watermark::Run(char* md5fn)
       //run FindMaxLength
     }
   }
+  delete[] _bin;
+  delete[] _bout;
+  _lenb = 0;
 }
 
 void
