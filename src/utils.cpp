@@ -193,9 +193,9 @@ State::print(size_t trunc1, size_t trunc2)
   if (trunc2)
     trunc1 = 8 * sizeof(unsigned long) - trunc2;
   BitString* tmp;
-  for (size_t i=0; i<_ni; i++)
+  for (unsigned long i=0; i<_ni; i++)
     if (IsTransitionOccupied(i)) {
-      tmp = new BitString((unsigned long)i);
+      tmp = new BitString(i);
       cout << 'S' << _index << ' ';
       cout << (tmp->tostring()).substr(trunc1) << ' ';
       cout << (_t[i]._o->tostring()).substr(trunc2) << ' ';
@@ -225,10 +225,28 @@ State::MaxLengthRun(BitString* bin, BitString* bout, size_t j, size_t& maxlen, s
     else
       break;
   }
-  if (j + maxlen != n)
+  if (j + maxlen < n - 1)
     if (s->IsTransitionOccupied(bin[j + maxlen + 1].tolong())) {
       maxlen = 0;
       return 0;
     }
   return s;
+}
+
+unsigned long
+State::getfreetrans()
+{
+  assert (_c < _ni);
+  for (unsigned long i=0; i<_ni; i++)
+    if (!IsTransitionOccupied(i))
+      return i;
+  return 0;
+}
+
+void
+State::pushtrans(State* s)
+{
+  unsigned long i = getfreetrans();
+  _t[i]._s = s;
+  _t[i]._o = new BitString(0);
 }

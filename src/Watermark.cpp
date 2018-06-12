@@ -46,6 +46,12 @@ Watermark::Watermark(char* fn)
   for (size_t i=0; i<graph->size(); i++)
     graph[i].clear();
   delete[] graph;
+  State* tmp;
+  CheckValid(tmp);
+  if (!tmp) {
+    cout << "Is's a CSFSM!" << endl;
+    exit(0);
+  }
 //  for (int i=0; i<_states.size(); i++)
 //    _states[i]->print(_n_ib, _n_ob);
 }
@@ -84,14 +90,16 @@ Watermark::UnreachState(set<size_t>* a)
           if (a[_res].insert(*j).second)
             control = true;
   } while (control);
-
+  bool pr = false;
   if (a[_res].size() < _states.size()) {
     for (size_t i=0; i<_states.size(); i++)
-      if (a[_res].find(i) == a[_res].end()) {
+      if (a[_res].find(i) == a[_res].end() && i != _res) {
         cout << 'S' << i << ' ';
         DeleteState(i);
+        pr = true;
       }
-    cout << "is disconnected to the reset state" << endl;
+    if (pr)
+      cout << "is disconnected to the reset state" << endl;
   }
 }
 
@@ -132,17 +140,59 @@ Watermark::Parsemd5(char* md5fn)
 }
 
 void
-Watermark::Run(char* md5fn)
+Watermark::run(char* md5fn)
 {
   Parsemd5(md5fn);
-  for (vector<State*>::iterator i=_states.begin(); i!=_states.end(); ++i) {
-    if (*i) {
-      //run FindMaxLength
-    }
-  }
+  bool gate = true;
+  while (gate);
+    gate = runcore();
   delete[] _bin;
   delete[] _bout;
   _lenb = 0;
+}
+
+bool
+Watermark::runcore()
+{
+  size_t pos = 0;
+  size_t maxlen = 0;
+  State* start = _states[_res];
+  State* dest = 0;
+  while (pos != _lenb - 1) {
+    for (vector<State*>::iterator s=_states.begin(); s!=_states.end(); ++s) {
+      if (*s) {
+        size_t m;
+        State* d = (*s)->MaxLengthRun(_bin, _bout, pos + 1, m, _lenb);
+        if (d and m >= maxlen) {
+          maxlen = m;
+          dest = d;
+          cout << 's' << (*s)->getidx() << " s" << d->getidx();
+          cout << " maxlen : " << maxlen << endl;
+        }
+      }
+    }
+    string a = _bin[pos].tostring();
+    string b = _bout[pos].tostring();
+    if (dest) {
+      start->addtrans(a, b, dest);
+    }
+    else {
+      dest = FreeTransition(pos); // have free transition of specific output or not
+      if (dest) { // if yes
+        NewState();
+        start->addtrans(a, b, _states.back());
+      }
+      else { // if no
+        NewStateTrans(dest);
+        break;
+      }
+    }
+    pos = pos + maxlen + 1;
+    start = dest;
+    if (pos == _lenb)
+      return true;
+  }
+  return (pos != _lenb);
 }
 
 void
@@ -154,8 +204,56 @@ Watermark::NewState()
 }
 
 void
+Watermark::NewStateTrans(State* s)
+{
+  NewState();
+  s->pushtrans(_states.back());
+}
+
+void
 Watermark::DeleteState(size_t i)
 {
   delete _states[i];
   _states[i] = 0;
+}
+
+State*
+Watermark::FreeTransition(size_t j)
+{
+  State* d = 0;
+  for (vector<State*>::iterator s=_states.begin(); s!=_states.end(); ++s) {
+    if (*s)
+      if ((*s)->IsTransitionOccupied(_bin[j].tolong())) {
+        d = *s;
+        break;
+      }
+  }
+  return d;
+}
+
+bool
+Watermark::CheckValid(State* p)
+{
+  // CSFSM -> return false + p = 0
+  // only one transition -> return false + p = that state
+  // multiple transitions -> return true + p = last state
+  bool full = true;
+  p = 0;
+  for (vector<State*>::iterator s=_states.begin(); s!=_states.end(); ++s) {
+    if (*s) {
+      if (full) {
+        full = (*s)->IsFull();
+        if (!full)
+          p = *s;
+      }
+      else if (!(*s)->IsFull()) { //second empty
+        p = *s;
+        return true;
+      }
+    }
+  }
+  if (!full) //only one transition left
+    return !p->IsOne();
+  return false;
+
 }

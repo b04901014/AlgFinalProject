@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <cassert>
 #include <stdlib.h>
+#include <cassert>
 
 using namespace std;
 
@@ -46,15 +47,20 @@ public:
   bool addtrans(string&, string&, State*); //return false if transition is full
   void print(size_t = 0, size_t = 0);
   State* MaxLengthRun(BitString*, BitString*, size_t, size_t&, size_t);
+  unsigned long getidx() { return _index; }
+  bool IsFull() { return _c == _ni; }
+  bool IsOne() { return _c == _ni - 1; }
+  void pushtrans(State*);
+  bool IsTransitionOccupied(unsigned long);
+  unsigned long getfreetrans();
 
 private:
   void bitcomb(int, string*);
-  bool IsTransitionOccupied(unsigned long);
 
   Transition*    _t;
-  unsigned long  _ni;    //max input transitions
-  unsigned long  _c;     //current occupied states
-  unsigned long  _index; //state index
+  unsigned long  _ni;      //max input transitions
+  unsigned long  _c;       //current occupied number
+  unsigned long  _index;   //state index
 };
 
 struct Transition

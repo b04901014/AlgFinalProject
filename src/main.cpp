@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
     return 0;
   }   
   Watermark wk(argv[1]);
-  wk.Run(argv[2]);
+  wk.run(argv[2]);
   wk.write(argv[3]);
   return 0;
 }

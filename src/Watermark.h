@@ -17,7 +17,7 @@ public:
   Watermark(char*);
   ~Watermark();
   void write(char*);
-  void Run(char*);
+  void run(char*);
 
 private:
   void split(string&, string&, size_t&, size_t&, string&);
@@ -25,6 +25,10 @@ private:
   void NewState();
   void DeleteState(size_t);
   void Parsemd5(char*);
+  bool runcore();
+  bool CheckValid(State*);
+  State* FreeTransition(size_t);
+  void NewStateTrans(State*);
 
   vector<State*>    _states;
   size_t            _n_ib;
