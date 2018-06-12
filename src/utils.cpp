@@ -213,13 +213,14 @@ State::MaxLengthRun(BitString* bin, BitString* bout, size_t j, size_t& maxlen, s
   if (!s->IsTransitionOccupied(idx))
     return 0;
   while (s->IsTransitionOccupied(idx)) {
-    State* ns = _t[idx]._s;
-    BitString* o = _t[idx]._o;
+    State* ns = (s->_t)[idx]._s;
+    BitString* o = (s->_t)[idx]._o;
     if (*o == bout[j]) {
       s = ns;
       maxlen++;
-      if (j + maxlen == n)
+      if (j + maxlen == n) {
         break;
+      }
       idx = bin[j + maxlen].tolong();
     }
     else

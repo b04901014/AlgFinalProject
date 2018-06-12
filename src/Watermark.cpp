@@ -137,6 +137,7 @@ Watermark::Parsemd5(char* md5fn)
     tmp = md5.substr(i * totalsize + _n_ib, _n_ob);
     _bout[i].set(tmp);
   }
+//  cout << md5 << endl;
 }
 
 void
@@ -144,7 +145,7 @@ Watermark::run(char* md5fn)
 {
   Parsemd5(md5fn);
   bool gate = true;
-  while (gate);
+  while (gate)
     gate = runcore();
   delete[] _bin;
   delete[] _bout;
@@ -154,7 +155,7 @@ Watermark::run(char* md5fn)
 bool
 Watermark::runcore()
 {
-  size_t pos = 0;
+  int pos = -1;
   size_t maxlen = 0;
   State* start = _states[_res];
   State* dest = 0;
@@ -166,11 +167,20 @@ Watermark::runcore()
         if (d and m >= maxlen) {
           maxlen = m;
           dest = d;
-          cout << 's' << (*s)->getidx() << " s" << d->getidx();
-          cout << " maxlen : " << maxlen << endl;
+//          cout << 's' << (*s)->getidx() << " s" << d->getidx();
+//          cout << " maxlen : " << maxlen << endl;
         }
       }
     }
+//    cout << maxlen << endl;
+    if (pos == -1) { 
+      if (dest)
+        start = dest;
+      pos = maxlen;
+      continue;
+    }
+    _bin[pos].print();
+    _bout[pos].print();
     string a = _bin[pos].tostring();
     string b = _bout[pos].tostring();
     if (dest) {
@@ -188,9 +198,16 @@ Watermark::runcore()
       }
     }
     pos = pos + maxlen + 1;
+//    cout << pos << ' ' << _lenb << endl;
     start = dest;
     if (pos == _lenb)
-      return true;
+      return false;
+  }
+  if (pos == _lenb - 1) {
+    string a = _bin[pos].tostring();
+    string b = _bout[pos].tostring();
+    start->addtrans(a, b, dest);
+    return false;
   }
   return (pos != _lenb);
 }
