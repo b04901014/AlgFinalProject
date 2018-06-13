@@ -41,27 +41,30 @@ end
    
     reset = 0 ;
     @(negedge clk) reset = 1;
-    @(negedge clk) reset = 0;
+    @(posedge clk) #1 reset = 0;
         init_pattern_p = init_pattern[0];
         init_pattern_p = init_pattern_p << (max_ini -1 -init_clock*length_i);
          for (j  = init_clock; j >0; j = j-1) begin
-           in =  init_pattern_p[max_ini-1:(max_ini-1-length_i)];
+           #1 in =  init_pattern_p[max_ini-1:(max_ini-1-length_i)];
             init_pattern_p = init_pattern_p << length_i;
-           @(negedge clk);
+           @(posedge clk);
          end
+
         i = 128/(length_i+length_o);
+        if (i *(length_i+length_o) < 128) 
+             i = i +1 ;
         for (j = 0 ; j < i ; j = j+1) begin
-          in = md5_p[127:(128-length_i)];
+          #1 in= md5_p[127:(128-length_i)]; 
           exp_out = md5_p[(127-length_i):(128-length_i-length_o)];  
           md5_p = md5_p << (length_i + length_o);
-          compare = (exp_out == out) ;
+             #18 compare = (exp_out == out) ;
                 if (exp_out === 'bx)
                    compare = 1'b0;
                 if ( compare === 1'b0) begin
                   $write ("Time: %0t Error in WaterMark  ==> in: %h  expect result: %h  out =%h\n", 
                      $time, in, exp_out, out );
                 end 
-             @(negedge clk);
+             @(posedge clk);
         end 
 
     #10  $finish;
