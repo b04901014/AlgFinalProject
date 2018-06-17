@@ -3,6 +3,8 @@ Algorithm Final Project Team 2
 
 Author: Li-Wei Chen
 
+This project is for the ICCAD contest, please visit <http://iccad-contest.org/2018/tw/Problem_D/2018ICCADContest_ProblemD.pdf> for further information.
+
 ## How to Run
   ```
   mkdir bin
