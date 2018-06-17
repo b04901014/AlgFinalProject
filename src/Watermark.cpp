@@ -40,6 +40,7 @@ Watermark::Watermark(char* fn)
     string in, out;
     split(line, in, s1, s2, out);
     _states[s1]->addtrans(in, out, _states[s2]);
+    _states[s1]->setmap(in, out, _states[s2]);
     graph[s1].insert(s2);
   }
   UnreachState(graph);
@@ -59,23 +60,37 @@ Watermark::Watermark(char* fn)
 void
 Watermark::split(string& s, string& x, size_t& y, size_t& z, string& w)
 {
-    size_t pos = s.find(' ');
-    size_t start = 0;
-    x = s.substr(start, pos - start).c_str();
-    start = pos + 1;
-    pos = s.find(' ', start);
-    y = atoi(s.substr(start + 1, pos - start).c_str());
-    start = pos + 1;
-    pos = s.find(' ', start);
-    z = atoi(s.substr(start + 1, pos - start).c_str());
-    start = pos + 1;
-    w = s.substr(start, s.size() - start + 1).c_str();
+  size_t pos = s.find(' ');
+  size_t start = 0;
+  x = s.substr(start, pos - start).c_str();
+  start = pos + 1;
+  pos = s.find(' ', start);
+  y = atoi(s.substr(start + 1, pos - start).c_str());
+  start = pos + 1;
+  pos = s.find(' ', start);
+  z = atoi(s.substr(start + 1, pos - start).c_str());
+  start = pos + 1;
+  w = s.substr(start, s.size() - start + 1).c_str();
 }
 
 void
 Watermark::write(char* fn)
 {
-
+  ofstream ofs(fn, ofstream::out);
+  stringstream ss;
+  size_t nump = 0;
+  for (vector<State*>::iterator s=_states.begin(); s!=_states.end(); ++s)
+    if (*s) {
+      cout << (*s)->getidx() << endl;
+      (*s)->printmergetrans(ss, _n_ib, _n_ob, nump);
+    }
+  ofs << ".i " << _n_ib << endl;
+  ofs << ".o " << _n_ob << endl;
+  ofs << ".p " << nump << endl;
+  ofs << ".s " << _states.size() << endl;
+  ofs << ".r S" << _res << endl;
+  ofs << ss.str();
+  ofs << ".e";
 }
 
 void
@@ -172,27 +187,38 @@ Watermark::runcore()
         }
       }
     }
+    State* tmpp;
+    bool ismul = CheckValid(tmpp);
 //    cout << maxlen << endl;
     if (pos == -1) { 
-      if (dest)
+      if (dest && ismul)
         start = dest;
+      else {
+        start = FreeTransition(pos); // have free transition of specific output or not
+        if (!start)
+          if (!CheckValid(start)) {
+            NewStateTrans(start);
+            break;
+          }
+      }
       pos = maxlen;
       continue;
     }
-    _bin[pos].print();
-    _bout[pos].print();
     string a = _bin[pos].tostring();
     string b = _bout[pos].tostring();
-    if (dest) {
+    if (dest && ismul) {
       start->addtrans(a, b, dest);
     }
     else {
       dest = FreeTransition(pos); // have free transition of specific output or not
       if (dest) { // if yes
         NewState();
-        start->addtrans(a, b, _states.back());
+//        cout << start->IsFull() << endl;
+        bool x = dest->addtrans(a, b, _states.back());
+        cout << _states.back()->getidx() << ' ' << x << endl;
       }
       else { // if no
+        bool x = CheckValid(dest);
         NewStateTrans(dest);
         break;
       }
@@ -240,7 +266,7 @@ Watermark::FreeTransition(size_t j)
   State* d = 0;
   for (vector<State*>::iterator s=_states.begin(); s!=_states.end(); ++s) {
     if (*s)
-      if ((*s)->IsTransitionOccupied(_bin[j].tolong())) {
+      if (!(*s)->IsTransitionOccupied(_bin[j].tolong())) {
         d = *s;
         break;
       }
@@ -249,7 +275,7 @@ Watermark::FreeTransition(size_t j)
 }
 
 bool
-Watermark::CheckValid(State* p)
+Watermark::CheckValid(State*& p)
 {
   // CSFSM -> return false + p = 0
   // only one transition -> return false + p = that state
@@ -260,8 +286,9 @@ Watermark::CheckValid(State* p)
     if (*s) {
       if (full) {
         full = (*s)->IsFull();
-        if (!full)
+        if (!full) {
           p = *s;
+        }
       }
       else if (!(*s)->IsFull()) { //second empty
         p = *s;

@@ -5,6 +5,11 @@
 #include <cassert>
 #include <stdlib.h>
 #include <cassert>
+#include <fstream>
+#include <map>
+#include <set>
+#include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -12,8 +17,9 @@ using namespace std;
 #define UTILS
 
 #define BITSIZE 64
-
 struct Transition;
+typedef pair< string, bool > mypair;
+typedef map< Transition, vector<mypair> > mymap;
 
 class BitString
 {
@@ -53,14 +59,18 @@ public:
   void pushtrans(State*);
   bool IsTransitionOccupied(unsigned long);
   unsigned long getfreetrans();
+  void printmergetrans(stringstream&, size_t, size_t, size_t&);
+  void setmap(string&, string&, State*);
 
 private:
   void bitcomb(int, string*);
+  bool strash(vector<mypair>*, string&, vector<mypair>::iterator&, bool);
 
   Transition*    _t;
   unsigned long  _ni;      //max input transitions
   unsigned long  _c;       //current occupied number
   unsigned long  _index;   //state index
+  mymap          tmpmap;
 };
 
 struct Transition
@@ -71,7 +81,17 @@ struct Transition
   unsigned long getoutputlong() {
     return _o->tolong();
   }
-
+  bool operator == (const Transition& x) { 
+    return (_o->tolong() == x._o->tolong() &&
+            _s->getidx() == x._s->getidx());
+  }
+  bool operator < (const Transition& x) const {
+    if (_o->tolong() < x._o->tolong())
+      return true;
+    if (_o->tolong() == x._o->tolong())
+      return _s->getidx() < x._s->getidx();
+    return false;
+  }
 };
 
 #endif

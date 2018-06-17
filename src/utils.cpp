@@ -227,7 +227,7 @@ State::MaxLengthRun(BitString* bin, BitString* bout, size_t j, size_t& maxlen, s
       break;
   }
   if (j + maxlen < n - 1)
-    if (s->IsTransitionOccupied(bin[j + maxlen + 1].tolong())) {
+    if (s->IsTransitionOccupied(bin[j + maxlen + 1].tolong()) || s->IsFull()) {
       maxlen = 0;
       return 0;
     }
@@ -250,4 +250,120 @@ State::pushtrans(State* s)
   unsigned long i = getfreetrans();
   _t[i]._s = s;
   _t[i]._o = new BitString(0);
+}
+
+void
+State::printmergetrans(stringstream& ofs, size_t trunc1, size_t trunc2, size_t& nump)
+{
+  mymap::iterator it;
+  trunc1 = 8 * sizeof(unsigned long) - trunc1;
+  trunc2 = 8 * sizeof(unsigned long) - trunc2;
+  for (unsigned long i=0; i<_ni; i++) {
+    if (!IsTransitionOccupied(i))
+      continue;
+    BitString tmpb(i);
+    string tmpstring = tmpb.tostring().substr(trunc1);
+    it = tmpmap.find(_t[i]);
+    bool p = (_t[i]._s->_index == 0);
+    if (it != tmpmap.end()) {
+      vector<mypair>* tmpv = &(it->second);
+      bool rc = false;
+      vector<mypair>::iterator it2 = tmpv->end();
+      while (!strash(tmpv, tmpstring, it2, p))
+        rc = true;
+      if (!rc && !tmpstring.empty())
+        tmpmap[_t[i]].push_back(mypair(tmpstring, true));
+      it2 = tmpv->end();
+    }
+    else {
+      tmpmap[_t[i]] = vector<mypair>();
+      tmpmap[_t[i]].push_back(mypair(tmpstring, true));
+    }
+  }
+  for (it=tmpmap.begin(); it!=tmpmap.end(); ++it) {
+    Transition t = it->first;
+    string ostring = t._o->tostring().substr(trunc2);
+    unsigned long stateidx = t._s->_index;
+    vector<mypair>* tmpv = &(it->second);
+    for (vector<mypair>::iterator j=tmpv->begin(); j!=tmpv->end(); ++j) {
+      if (!(*j).second) {
+        continue;
+      }
+      ofs << (*j).first << " S" << _index;
+      ofs << " S" << stateidx << ' ' << ostring;
+      ofs << endl;
+      nump++;
+    }
+  }
+}
+
+bool
+State::strash(vector<mypair>* tmpv, string& tmpstring, vector<mypair>::iterator& it, bool p)
+{
+  bool addpush = true;
+  for (vector<mypair>::iterator j=tmpv->begin(); j!=tmpv->end(); ++j) {
+    if (it == j)
+      continue;
+    size_t count = 0;
+    size_t pos = 0;
+    bool merge = true;
+    for (size_t k=0; k<tmpstring.length(); k++) {
+      if (tmpstring[k] != ((*j).first)[k]) {
+        pos = k;
+        count++;
+        if (tmpstring[k] != '-' and ((*j).first)[k] != '-')
+          merge = false;
+      }
+    }
+    if (count == 0) {
+      addpush = false;
+      it = j;
+      return false;
+    }
+    if (merge) {
+      string tmps = "";
+      for (size_t k=0; k<tmpstring.length(); k++) {
+        if (tmpstring[k] == '-' or ((*j).first)[k] == '-')
+          tmps += '-';
+        else
+          tmps += tmpstring[k];
+      }
+      if (tmps == (*j).first) { //terminate
+        if (it != tmpv->end())
+          (*it).second = false;
+        tmpstring.clear();
+        it = tmpv->end();
+        return true;
+      }
+      if (it != tmpv->end())
+        (*it).second = false;
+      it = j;
+      tmpstring = tmps;
+      (*j).first = tmps;
+      return false;
+    }
+    if (count == 1) {
+      string gg = (*j).first;
+      ((*j).first)[pos] = '-';
+      tmpstring = (*j).first;
+      it = j;
+      return false;
+    }
+  }
+  return addpush;
+}
+
+void
+State::setmap(string& in, string& out, State* ns)
+{
+  Transition tmpt;
+  tmpt._s = ns;
+  tmpt._o = new BitString(out);
+  mymap::iterator it = tmpmap.find(tmpt);
+  if (it != tmpmap.end())
+    it->second.push_back(mypair(in, true));
+  else {
+    tmpmap[tmpt] = vector<mypair>();
+    tmpmap[tmpt].push_back(mypair(in, true));
+  }
 }
