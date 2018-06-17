@@ -20,3 +20,5 @@ This project is for the ICCAD contest, please visit <http://iccad-contest.org/20
   ./bin/Watermark -i <input> -o <output> -m <md5file_1> <md5file_2> ... <md5file_n>
   ```
   2. Test on verilog simulation
+
+  3. Relax the constraint of # of input bits should <= 64
