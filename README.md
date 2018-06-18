@@ -5,6 +5,8 @@ Author: Li-Wei Chen
 
 This project is for the ICCAD contest, please visit <http://iccad-contest.org/2018/tw/Problem_D/2018ICCADContest_ProblemD.pdf> for further information.
 
+**All Rights Reserved.**
+
 ## How to Run
   ```
   mkdir bin
@@ -14,3 +16,5 @@ This project is for the ICCAD contest, please visit <http://iccad-contest.org/20
 
 ## TODO
   2. Test on verilog simulation
+
+  3. Relax the constraint of # of input bits should <= 64
