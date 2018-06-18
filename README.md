@@ -15,6 +15,6 @@ This project is for the ICCAD contest, please visit <http://iccad-contest.org/20
   ```
 
 ## TODO
-  2. Test on verilog simulation
+  1. Test on verilog simulation
 
-  3. Relax the constraint of # of input bits should <= 64
+  2. Relax the constraint of # of input bits should <= 64
