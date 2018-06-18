@@ -53,8 +53,6 @@ Watermark::Watermark(char* fn)
     cout << "Is's a CSFSM!" << endl;
     exit(0);
   }
-//  for (int i=0; i<_states.size(); i++)
-//    _states[i]->print(_n_ib, _n_ob);
 }
 
 void
@@ -80,10 +78,8 @@ Watermark::write(char* fn)
   stringstream ss;
   size_t nump = 0;
   for (vector<State*>::iterator s=_states.begin(); s!=_states.end(); ++s)
-    if (*s) {
-      cout << (*s)->getidx() << endl;
+    if (*s)
       (*s)->printmergetrans(ss, _n_ib, _n_ob, nump);
-    }
   ofs << ".i " << _n_ib << endl;
   ofs << ".o " << _n_ob << endl;
   ofs << ".p " << nump << endl;
@@ -152,7 +148,6 @@ Watermark::Parsemd5(char* md5fn)
     tmp = md5.substr(i * totalsize + _n_ib, _n_ob);
     _bout[i].set(tmp);
   }
-//  cout << md5 << endl;
 }
 
 void
@@ -182,14 +177,11 @@ Watermark::runcore()
         if (d and m >= maxlen) {
           maxlen = m;
           dest = d;
-//          cout << 's' << (*s)->getidx() << " s" << d->getidx();
-//          cout << " maxlen : " << maxlen << endl;
         }
       }
     }
     State* tmpp;
     bool ismul = CheckValid(tmpp);
-//    cout << maxlen << endl;
     if (pos == -1) { 
       if (dest && ismul)
         start = dest;
@@ -213,9 +205,7 @@ Watermark::runcore()
       dest = FreeTransition(pos); // have free transition of specific output or not
       if (dest) { // if yes
         NewState();
-//        cout << start->IsFull() << endl;
-        bool x = dest->addtrans(a, b, _states.back());
-        cout << _states.back()->getidx() << ' ' << x << endl;
+        dest->addtrans(a, b, _states.back());
       }
       else { // if no
         bool x = CheckValid(dest);
@@ -224,7 +214,6 @@ Watermark::runcore()
       }
     }
     pos = pos + maxlen + 1;
-//    cout << pos << ' ' << _lenb << endl;
     start = dest;
     if (pos == _lenb)
       return false;
