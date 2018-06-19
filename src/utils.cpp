@@ -132,6 +132,7 @@ State::addtrans(string& in, string& out, State* s)
 {
   if (_c == _ni)
     return false;
+  bool ret = false;
   size_t tmp[BITSIZE];
   size_t count = 0;
   size_t nw = 1;
@@ -156,9 +157,10 @@ State::addtrans(string& in, string& out, State* s)
       _t[idx]._s = s;
       _t[idx]._o = new BitString(out);
       _c++;
+      ret = true;
     }
   }
-  return true;
+  return ret;
 }
 
 void
@@ -210,27 +212,25 @@ State::MaxLengthRun(BitString* bin, BitString* bout, size_t j, size_t& maxlen, s
   maxlen = 0;
   State* s = this;
   unsigned long idx = bin[j].tolong();
-  if (!s->IsTransitionOccupied(idx))
-    return 0;
   while (s->IsTransitionOccupied(idx)) {
     State* ns = (s->_t)[idx]._s;
     BitString* o = (s->_t)[idx]._o;
-    if (*o == bout[j]) {
+    if (*o == bout[j + maxlen]) {
       s = ns;
       maxlen++;
-      if (j + maxlen == n) {
+      if (j + maxlen == n)
         break;
-      }
       idx = bin[j + maxlen].tolong();
     }
     else
       break;
   }
-  if (j + maxlen < n - 1)
-    if (s->IsTransitionOccupied(bin[j + maxlen + 1].tolong()) || s->IsFull()) {
+  if (j + maxlen < n) {
+    if (s->IsTransitionOccupied(idx)) {
       maxlen = 0;
       return 0;
     }
+  }
   return s;
 }
 
@@ -366,4 +366,10 @@ State::setmap(string& in, string& out, State* ns)
     tmpmap[tmpt] = vector<mypair>();
     tmpmap[tmpt].push_back(mypair(in, true));
   }
+}
+
+bool
+State::comp(unsigned long a, const BitString& b)
+{
+  return *(_t[a]._o) == b;
 }

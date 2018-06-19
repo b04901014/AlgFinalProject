@@ -32,6 +32,7 @@ public:
   bool operator < (const BitString&);
   bool operator > (const BitString&);
   bool operator == (const BitString&);
+  bool operator != (const BitString& b) { return (*this != b); }
   BitString& operator ++ ();
   void set(string&);
   void print();
@@ -61,6 +62,7 @@ public:
   unsigned long getfreetrans();
   void printmergetrans(stringstream&, size_t, size_t, size_t&);
   void setmap(string&, string&, State*);
+  bool comp(unsigned long, const BitString&);
 
 private:
   void bitcomb(int, string*);

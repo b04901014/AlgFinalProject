@@ -148,6 +148,7 @@ Watermark::Parsemd5(char* md5fn)
     tmp = md5.substr(i * totalsize + _n_ib, _n_ob);
     _bout[i].set(tmp);
   }
+  //cout << md5 << endl;
 }
 
 void
@@ -166,62 +167,81 @@ bool
 Watermark::runcore()
 {
   int pos = -1;
-  size_t maxlen = 0;
   State* start = _states[_res];
-  State* dest = 0;
   while (pos != _lenb - 1) {
+    size_t maxlen = 0;
+    State* dest = start;
+    State* nst = 0;
     for (vector<State*>::iterator s=_states.begin(); s!=_states.end(); ++s) {
       if (*s) {
         size_t m;
         State* d = (*s)->MaxLengthRun(_bin, _bout, pos + 1, m, _lenb);
         if (d and m >= maxlen) {
+          if (pos + m + 2 < _lenb)
+            if ((*s) == d && 
+                _bin[pos + m + 2] == _bin[pos + 1] && 
+                _bout[pos + m + 2].tolong() != _bout[pos + 1].tolong()) { //dead 
+              d = 0;
+              m = 0;
+              nst = start;
+            }
           maxlen = m;
-          dest = d;
+          dest = *s;
+          nst = d;
         }
+
       }
     }
     State* tmpp;
     bool ismul = CheckValid(tmpp);
     if (pos == -1) { 
-      if (dest && ismul)
-        start = dest;
+      if (maxlen == _lenb)
+        return false;
+      if (nst && ismul)
+        start = nst;
       else {
-        start = FreeTransition(pos); // have free transition of specific output or not
-        if (!start)
-          if (!CheckValid(start)) {
-            NewStateTrans(start);
-            break;
-          }
+        start = FreeTransition(pos + 1); // have free transition of specific output or not
+        if (!start) {
+          CheckValid(start);
+          NewStateTrans(start);
+          break;
+        }
       }
       pos = maxlen;
       continue;
     }
     string a = _bin[pos].tostring();
     string b = _bout[pos].tostring();
-    if (dest && ismul) {
+    if (nst && ismul) {
       start->addtrans(a, b, dest);
     }
     else {
-      dest = FreeTransition(pos); // have free transition of specific output or not
+      dest = FreeTransition(pos + 1); // have free transition of specific output or not
       if (dest) { // if yes
         NewState();
-        dest->addtrans(a, b, _states.back());
+        start->addtrans(a, b, dest);
+        string a2 = _bin[pos + 1].tostring();
+        string b2 = _bout[pos + 1].tostring();
+        dest->addtrans(a2, b2, _states.back());
+        dest = _states.back();
+        maxlen++;
+        nst = dest;
       }
       else { // if no
-        bool x = CheckValid(dest);
+        CheckValid(dest);
         NewStateTrans(dest);
         break;
       }
     }
     pos = pos + maxlen + 1;
-    start = dest;
+    start = nst;
     if (pos == _lenb)
       return false;
   }
   if (pos == _lenb - 1) {
     string a = _bin[pos].tostring();
     string b = _bout[pos].tostring();
-    start->addtrans(a, b, dest);
+    start->addtrans(a, b, start);
     return false;
   }
   return (pos != _lenb);
@@ -233,6 +253,7 @@ Watermark::NewState()
   size_t i = _states.size();
   State* tmp = new State(_n_ib, i);
   _states.push_back(tmp);
+//  cout << "Adding state " << i << endl;
 }
 
 void
@@ -287,6 +308,8 @@ Watermark::CheckValid(State*& p)
   }
   if (!full) //only one transition left
     return !p->IsOne();
+//  if (p)
+//    cout << "state " << p->getidx() << " is the only one transition" << endl;
   return false;
 
 }
