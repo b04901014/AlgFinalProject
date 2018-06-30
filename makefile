@@ -1,6 +1,6 @@
 CC = g++ 
 CFLAGS = -c
-DBGFLAGS = -g 
+DBGFLAGS = -g -DDEBUG
 OPTFLAGS = -O2 
 
 all : bin/Watermark

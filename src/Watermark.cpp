@@ -148,7 +148,21 @@ Watermark::Parsemd5(char* md5fn)
     tmp = md5.substr(i * totalsize + _n_ib, _n_ob);
     _bout[i].set(tmp);
   }
-  //cout << md5 << endl;
+  #ifdef DEBUG
+  int cnt = 0;
+  cout << cnt << " ";
+  for (int i=0; i<md5.length(); i++) {
+    cout << md5[i];
+    if ((i + 1) % (_n_ib + _n_ob) == 0) {
+      cout << endl;
+      cnt++;
+      if (i != md5.length() - 1)
+        cout << cnt << " ";
+    }
+    else if ((i + 1 + _n_ob) % (_n_ib + _n_ob) == 0)
+      cout << " ";
+  }
+  #endif
 }
 
 void
@@ -177,21 +191,35 @@ Watermark::runcore()
         size_t m;
         State* d = (*s)->MaxLengthRun(_bin, _bout, pos + 1, m, _lenb);
         if (d and m >= maxlen) {
-          if (pos + m + 2 < _lenb)
-            if ((*s) == d && 
-                _bin[pos + m + 2] == _bin[pos + 1] && 
-                _bout[pos + m + 2].tolong() != _bout[pos + 1].tolong()) { //dead 
+          if (pos + m + 1 < _lenb)
+            if ((*s)->getidx() == d->getidx() && 
+                _bin[pos + m + 1] == _bin[pos]) { //dead TODO : Add handling of cycles
+              #ifdef DEBUG
+              cout << "MAXLEN " << m << " DEAD END ";
+              cout << pos + m + 1 << ' ' << pos << endl;
+              #endif
               d = 0;
               m = 0;
-              nst = start;
+              nst = 0;
             }
           maxlen = m;
           dest = *s;
           nst = d;
         }
-
       }
     }
+    #ifdef DEBUG
+    cout << "Maxlen : " << maxlen;
+    if (dest)
+      cout << " Destination : s" << dest->getidx(); 
+    else
+      cout << " Destination None";
+    if (nst)
+      cout << " Next State : s" << nst->getidx(); 
+    else
+      cout << " Next State None";
+    cout << endl;
+    #endif
     State* tmpp;
     bool ismul = CheckValid(tmpp);
     if (pos == -1) { 
@@ -213,25 +241,26 @@ Watermark::runcore()
     string a = _bin[pos].tostring();
     string b = _bout[pos].tostring();
     if (nst && ismul) {
+      #ifdef DEBUG
+      cout << "At Position : " << pos;
+      cout << " Add Transition from s" << start->getidx();
+      cout << " to s" << dest->getidx();
+      cout << " with " << a.substr(BITSIZE - _n_ib);
+      cout << " " << b.substr(BITSIZE - _n_ob) << endl;
+      #endif
       start->addtrans(a, b, dest);
     }
     else {
-      dest = FreeTransition(pos + 1); // have free transition of specific output or not
-      if (dest) { // if yes
-        NewState();
-        start->addtrans(a, b, dest);
-        string a2 = _bin[pos + 1].tostring();
-        string b2 = _bout[pos + 1].tostring();
-        dest->addtrans(a2, b2, _states.back());
-        dest = _states.back();
-        maxlen++;
-        nst = dest;
-      }
-      else { // if no
-        CheckValid(dest);
-        NewStateTrans(dest);
-        break;
-      }
+      NewState();
+      #ifdef DEBUG
+      cout << "At Position : " << pos;
+      cout << " Add Transition from s" << start->getidx();
+      cout << " to s" << _states.back()->getidx();
+      cout << " with " << a.substr(BITSIZE - _n_ib);
+      cout << " " << b.substr(BITSIZE - _n_ob) << endl;
+      #endif
+      start->addtrans(a, b, _states.back());
+      nst = _states.back();
     }
     pos = pos + maxlen + 1;
     start = nst;
@@ -242,6 +271,13 @@ Watermark::runcore()
     string a = _bin[pos].tostring();
     string b = _bout[pos].tostring();
     start->addtrans(a, b, start);
+    #ifdef DEBUG
+    cout << "At Position : " << pos;
+    cout << " Add Transition from s" << start->getidx();
+    cout << " to s" << start->getidx();
+    cout << " with " << a.substr(BITSIZE - _n_ib);
+    cout << " " << b.substr(BITSIZE - _n_ob) << endl;
+    #endif
     return false;
   }
   return (pos != _lenb);
@@ -253,7 +289,9 @@ Watermark::NewState()
   size_t i = _states.size();
   State* tmp = new State(_n_ib, i);
   _states.push_back(tmp);
-//  cout << "Adding state " << i << endl;
+  #ifdef DEBUG
+  cout << "Adding state s" << i << endl;
+  #endif
 }
 
 void
@@ -261,6 +299,11 @@ Watermark::NewStateTrans(State* s)
 {
   NewState();
   s->pushtrans(_states.back());
+  #ifdef DEBUG
+  cout << "Add Transition from s" << s->getidx();
+  cout << " to s" << _states.back()->getidx();
+  cout << " with zero" << endl;
+  #endif
 }
 
 void
