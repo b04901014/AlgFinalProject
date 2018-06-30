@@ -25,7 +25,7 @@ private:
   void NewState();
   void DeleteState(size_t);
   void Parsemd5(char*);
-  bool runcore();
+  void runcore();
   bool CheckValid(State*&);
   State* FreeTransition(size_t);
   void NewStateTrans(State*);
