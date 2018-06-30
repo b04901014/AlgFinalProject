@@ -52,6 +52,7 @@ public:
 
   void set(unsigned long, unsigned long);
   bool addtrans(string&, string&, State*); //return false if transition is full
+  bool deltrans(string&); //return false if transition is empty
   void print(size_t = 0, size_t = 0);
   State* MaxLengthRun(BitString*, BitString*, size_t, size_t&, size_t);
   unsigned long getidx() { return _index; }

@@ -180,28 +180,60 @@ Watermark::run(char* md5fn)
 bool
 Watermark::runcore()
 {
-  int pos = -1;
   State* start = _states[_res];
+  size_t maxlen = 0;
+  State* dest = start;
+  State* nst = 0;
+  for (vector<State*>::iterator s=_states.begin(); s!=_states.end(); ++s) {
+    if (*s) {
+      size_t m;
+      State* d = (*s)->MaxLengthRun(_bin, _bout, 0, m, _lenb);
+      if (d and m >= maxlen) {
+        maxlen = m;
+        dest = *s;
+        nst = d;
+      }
+    }
+  }
+  if (maxlen == _lenb)
+    return false;
+  if (nst)
+    start = nst;
+  else { 
+    start = FreeTransition(0); // have free transition of specific output or not
+    if (!start) {
+      CheckValid(start);
+      NewStateTrans(start);
+      return true;
+    }
+  }
+  int pos = maxlen;
+  #ifdef DEBUG
+  cout << "Start State : s" << start->getidx() << endl;
+  cout << "Maxlen : " << maxlen;
+  if (dest)
+    cout << " Destination : s" << dest->getidx(); 
+  else
+    cout << " Destination None";
+  if (nst)
+    cout << " Next State : s" << nst->getidx(); 
+  else
+    cout << " Next State None";
+  cout << endl;
+  #endif
   while (pos != _lenb - 1) {
-    size_t maxlen = 0;
-    State* dest = start;
-    State* nst = 0;
+    maxlen = 0;
+    dest = start;
+    nst = 0;
+    string a = _bin[pos].tostring();
+    string b = _bout[pos].tostring();
     for (vector<State*>::iterator s=_states.begin(); s!=_states.end(); ++s) {
       if (*s) {
         size_t m;
+        start->addtrans(a, b, *s);
         State* d = (*s)->MaxLengthRun(_bin, _bout, pos + 1, m, _lenb);
+        start->deltrans(a);
         if (d and m >= maxlen) {
-          if (pos + m + 1 < _lenb)
-            if ((*s)->getidx() == d->getidx() && 
-                _bin[pos + m + 1] == _bin[pos]) { //dead TODO : Add handling of cycles
-              #ifdef DEBUG
-              cout << "MAXLEN " << m << " DEAD END ";
-              cout << pos + m + 1 << ' ' << pos << endl;
-              #endif
-              d = 0;
-              m = 0;
-              nst = 0;
-            }
           maxlen = m;
           dest = *s;
           nst = d;
@@ -220,27 +252,7 @@ Watermark::runcore()
       cout << " Next State None";
     cout << endl;
     #endif
-    State* tmpp;
-    bool ismul = CheckValid(tmpp);
-    if (pos == -1) { 
-      if (maxlen == _lenb)
-        return false;
-      if (nst && ismul)
-        start = nst;
-      else {
-        start = FreeTransition(pos + 1); // have free transition of specific output or not
-        if (!start) {
-          CheckValid(start);
-          NewStateTrans(start);
-          break;
-        }
-      }
-      pos = maxlen;
-      continue;
-    }
-    string a = _bin[pos].tostring();
-    string b = _bout[pos].tostring();
-    if (nst && ismul) {
+    if (nst) {
       #ifdef DEBUG
       cout << "At Position : " << pos;
       cout << " Add Transition from s" << start->getidx();

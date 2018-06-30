@@ -222,14 +222,8 @@ State::MaxLengthRun(BitString* bin, BitString* bout, size_t j, size_t& maxlen, s
         break;
       idx = bin[j + maxlen].tolong();
     }
-    else {
-      #ifdef DEBUG
-      cout << "s" << _index << " ";
-      cout << "With wrong output ";
-      cout << j + maxlen << " : " << o->tostring() << endl;
-      #endif
+    else
       break;
-    }
   }
   if (j + maxlen < n) {
     if (s->IsTransitionOccupied(idx)) {
@@ -378,4 +372,16 @@ bool
 State::comp(unsigned long a, const BitString& b)
 {
   return *(_t[a]._o) == b;
+}
+
+bool
+State::deltrans(string& bin)
+{
+  unsigned long idx = BitString(bin).tolong();
+  if (!IsTransitionOccupied(idx))
+    return false;
+  delete _t[idx]._o;
+  _t[idx]._s = 0;
+  _t[idx]._o = 0;
+  _c--;
 }
